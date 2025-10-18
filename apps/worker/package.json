@@ -1,0 +1,19 @@
+{
+  "name": "worker",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "wrangler dev --remote",
+    "deploy": "wrangler deploy",
+    "start": "wrangler dev --remote"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241022.0",
+    "typescript": "^5.4.0",
+    "wrangler": "^4.43.0"
+  },
+  "dependencies": {
+    "hono": "^4.10.1",
+    "zod": "^3.25.76"
+  }
+}

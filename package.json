@@ -1,0 +1,11 @@
+{
+  "name": "auragrid",
+  "private": true,
+  "workspaces": ["apps/*"],
+  "scripts": {
+    "dev:fe": "npm --workspace apps/frontend run dev",
+    "dev:worker": "npm --workspace apps/worker run dev",
+    "dev": "concurrently -n FE,WK -c green,cyan \"npm run dev:fe\" \"npm run dev:worker\""
+  },
+  "devDependencies": { "concurrently": "^9.0.0" }
+}
