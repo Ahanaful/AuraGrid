@@ -1,14 +1,29 @@
-import type { ForecastRow } from "@/types/api";
+import { ForecastArraySchema } from '../lib/schema'
+import type { ForecastRow } from '../types/api'
 
-const KV_KEYS = {
-  forecast: "forecast.json",
-} as const;
+export const KV_KEYS = { FORECAST: 'forecast.json' } as const
 
 export async function readForecast(kv: KVNamespace): Promise<ForecastRow[] | null> {
-  const raw = await kv.get(KV_KEYS.forecast);
-  return raw ? (JSON.parse(raw) as ForecastRow[]) : null;
+  const raw = await kv.get(KV_KEYS.FORECAST)
+  if (!raw) return null
+
+  try {
+    const parsed = JSON.parse(raw)
+    const result = ForecastArraySchema.safeParse(parsed)
+    if (!result.success) return null
+    return result.data
+  } catch (error) {
+    console.error('[kvStore:read]', error)
+    return null
+  }
 }
 
-export async function writeForecast(kv: KVNamespace, payload: ForecastRow[]) {
-  await kv.put(KV_KEYS.forecast, JSON.stringify(payload));
+export async function writeForecast(kv: KVNamespace, body: string) {
+  const parsed = JSON.parse(body)
+  const result = ForecastArraySchema.safeParse(parsed)
+  if (!result.success) {
+    throw new Error('Invalid forecast JSON')
+  }
+
+  await kv.put(KV_KEYS.FORECAST, body)
 }

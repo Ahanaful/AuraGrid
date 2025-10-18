@@ -1,56 +1,21 @@
-import type { OptimizeMetrics } from "@/types/api";
-
-interface MetricOptions {
-  carbonIntensityKgPerMwh?: number;
-}
-
-const DEFAULTS: Required<MetricOptions> = {
-  carbonIntensityKgPerMwh: 400,
-};
-
-export function computeMetrics(
-  base: number[],
-  optimized: number[],
-  renewable: number[],
-  options: MetricOptions = {},
-): OptimizeMetrics {
-  if (!base.length) {
-    return {
-      peak_reduction_pct: 0,
-      renewable_gain_pct: 0,
-      co2_avoided_kg: 0,
-    };
+export function computeMetrics(base: number[], optimized: number[], renewable: number[]) {
+  if (base.length === 0) {
+    return { peak_reduction_pct: 0, renewable_gain_pct: 0, co2_avoided_kg: 0 }
   }
 
-  const { carbonIntensityKgPerMwh } = { ...DEFAULTS, ...options };
-  const threshold = Math.max(...base) * 0.9;
+  const maxBase = Math.max(...base)
+  const peakThreshold = 0.9 * maxBase
 
-  const peakOverage = base.reduce((total, value) => total + Math.max(0, value - threshold), 0);
-  const optimizedOverage = optimized.reduce(
-    (total, value) => total + Math.max(0, value - threshold),
-    0,
-  );
+  const peakSum = base.reduce((sum, value) => sum + Math.max(value - peakThreshold, 0), 0)
+  const peakSumOpt = optimized.reduce((sum, value) => sum + Math.max(value - peakThreshold, 0), 0)
+  const peak_reduction_pct = peakSum ? ((peakSum - peakSumOpt) / peakSum) * 100 : 0
 
-  const baselineRenewableAlignment = aggregateOverlap(base, renewable);
-  const optimizedRenewableAlignment = aggregateOverlap(optimized, renewable);
+  const align = base.reduce((sum, value, index) => sum + Math.min(value, renewable[index] ?? 0), 0)
+  const alignOpt = optimized.reduce((sum, value, index) => sum + Math.min(value, renewable[index] ?? 0), 0)
+  const renewable_gain_pct = align ? ((alignOpt - align) / align) * 100 : 0
 
-  const peakReduction = peakOverage === 0 ? 0 : ((peakOverage - optimizedOverage) / peakOverage) * 100;
-  const renewableGain = baselineRenewableAlignment === 0
-    ? 0
-    : ((optimizedRenewableAlignment - baselineRenewableAlignment) / baselineRenewableAlignment) * 100;
+  const carbonIntensityKgPerKWh = 0.4
+  const co2_avoided_kg = Math.max(0, alignOpt - align) * carbonIntensityKgPerKWh
 
-  const co2Avoided = Math.max(0, optimizedRenewableAlignment - baselineRenewableAlignment) * carbonIntensityKgPerMwh;
-
-  return {
-    peak_reduction_pct: Number(peakReduction.toFixed(2)),
-    renewable_gain_pct: Number(renewableGain.toFixed(2)),
-    co2_avoided_kg: Number(co2Avoided.toFixed(2)),
-  };
-}
-
-function aggregateOverlap(load: number[], renewable: number[]) {
-  return load.reduce((total, value, index) => {
-    const available = renewable[index] ?? 0;
-    return total + Math.min(value, available);
-  }, 0);
+  return { peak_reduction_pct, renewable_gain_pct, co2_avoided_kg }
 }

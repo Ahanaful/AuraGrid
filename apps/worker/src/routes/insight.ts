@@ -1,38 +1,22 @@
-import { Hono } from "hono";
-import { jsonError } from "@/lib/errors";
-import { forecastPayloadSchema } from "@/lib/schema";
-import { readForecast } from "@/adapters/kvStore";
-import { greedyOptimize } from "@/domain/optimize";
-import { computeMetrics } from "@/domain/metrics";
-import { generateInsight } from "@/adapters/ai";
-import type { AuraContext } from "@/types/env";
+import { Hono } from 'hono'
+import { summarize } from '../adapters/ai'
 
-export const insightRoutes = new Hono<AuraContext>();
+export const insight = new Hono<{ Bindings: { AI: any } }>()
 
-insightRoutes.get("/api/insight", async (c) => {
-  try {
-    const stored = await readForecast(c.env.FORECAST_KV);
-    if (!stored || stored.length === 0) {
-      return c.json({ summary: "No forecast available. Upload data via PUT /api/forecast." });
-    }
+insight.get('/api/insight', async (c) => {
+  const requestUrl = new URL(c.req.url)
+  const optimizeUrl = new URL('/api/optimize', requestUrl).toString()
+  const response = await fetch(optimizeUrl)
 
-    const rows = forecastPayloadSchema.parse(stored);
-    const base = rows.map((row) => row.load_pred_mw);
-    const renewable = rows.map((row) => (row.solar_mw ?? 0) + (row.wind_mw ?? 0));
-
-    const { optimized, shifts } = greedyOptimize(base, renewable);
-    const metrics = computeMetrics(base, optimized, renewable);
-
-    const horizonHours = rows.length;
-    const summary = await generateInsight(c.env.AI, {
-      metrics,
-      horizonHours,
-      shiftedMegawattHours: shifts ?? 0,
-    });
-
-    return c.json({ summary, metrics });
-  } catch (error) {
-    console.error("[insight:get]", error);
-    return jsonError(c, error);
+  if (!response.ok) {
+    return c.json({ summary: '', metrics: {} })
   }
-});
+
+  const optimization = (await response.json()) as { metrics?: any }
+  if (!optimization.metrics) {
+    return c.json({ summary: '', metrics: {} })
+  }
+
+  const result = await summarize(c.env.AI, optimization.metrics)
+  return c.json(result)
+})

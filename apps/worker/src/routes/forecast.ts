@@ -1,34 +1,23 @@
-import { Hono } from "hono";
-import { jsonError } from "@/lib/errors";
-import { forecastPayloadSchema } from "@/lib/schema";
-import { readForecast, writeForecast } from "@/adapters/kvStore";
-import type { AuraContext } from "@/types/env";
+import { Hono } from 'hono'
+import { readForecast, writeForecast } from '../adapters/kvStore'
 
-export const forecastRoutes = new Hono<AuraContext>();
+export const forecast = new Hono<{ Bindings: { auragrid_forecast: KVNamespace } }>()
 
-forecastRoutes.get("/api/forecast", async (c) => {
+forecast.get('/api/forecast', async (c) => {
+  const data = await readForecast(c.env.auragrid_forecast)
+  return c.json(data ?? [])
+})
+
+forecast.put('/api/forecast', async (c) => {
+  const body = await c.req.text()
   try {
-    const data = await readForecast(c.env.FORECAST_KV);
-    if (!data) {
-      return c.json([], 200);
-    }
-
-    const validated = forecastPayloadSchema.parse(data);
-    return c.json(validated);
+    await writeForecast(c.env.auragrid_forecast, body)
+    return c.text('ok')
   } catch (error) {
-    console.error("[forecast:get]", error);
-    return jsonError(c, error);
+    console.error('[forecast:put]', error)
+    const message = error instanceof Error ? error.message : 'Invalid JSON'
+    return c.json({ error: message }, 400)
   }
-});
+})
 
-forecastRoutes.put("/api/forecast", async (c) => {
-  try {
-    const payload = await c.req.json();
-    const parsed = forecastPayloadSchema.parse(payload);
-    await writeForecast(c.env.FORECAST_KV, parsed);
-    return c.json({ status: "ok", count: parsed.length });
-  } catch (error) {
-    console.error("[forecast:put]", error);
-    return jsonError(c, error);
-  }
-});
+forecast.get('/health', (c) => c.json({ ok: true }))

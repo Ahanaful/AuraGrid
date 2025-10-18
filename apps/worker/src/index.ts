@@ -1,13 +1,18 @@
-import { Hono } from "hono";
-import { forecastRoutes } from "@/routes/forecast";
-import { optimizeRoutes } from "@/routes/optimize";
-import { insightRoutes } from "@/routes/insight";
-import type { AuraContext } from "@/types/env";
+import { Hono } from 'hono'
+import { cors } from 'hono/cors'
+import { forecast } from './routes/forecast'
+import { optimize } from './routes/optimize'
+import { insight } from './routes/insight'
+import type { Ai } from '@cloudflare/workers-types'
 
-const app = new Hono<AuraContext>();
+type Env = { auragrid_forecast: KVNamespace; AI: Ai }
 
-app.route("/", forecastRoutes);
-app.route("/", optimizeRoutes);
-app.route("/", insightRoutes);
+const app = new Hono<{ Bindings: Env }>()
 
-export default app;
+app.use('*', cors({ origin: '*', allowHeaders: ['Content-Type'] }))
+
+app.route('/', forecast)
+app.route('/', optimize)
+app.route('/', insight)
+
+export default app

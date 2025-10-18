@@ -1,7 +1,7 @@
 import type { Ai } from "@cloudflare/workers-types";
 
 export type Bindings = {
-  FORECAST_KV: KVNamespace;
+  auragrid_forecast: KVNamespace;
   AI: Ai;
 };
 
