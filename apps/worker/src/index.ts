@@ -11,8 +11,23 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
-export default {
-	async fetch(request, env, ctx): Promise<Response> {
-		return new Response('Hello World!');
-	},
-} satisfies ExportedHandler<Env>;
+// apps/worker/src/index.ts
+import { Hono } from 'hono'
+import { cors } from 'hono/cors'
+import { forecast } from './routes/forecast'
+import { optimize } from './routes/optimize'
+import { insight } from './routes/insight'
+
+type Env = { auragrid_forecast: KVNamespace; AI: any }
+
+const app = new Hono<{ Bindings: Env }>()
+
+// Let middleware answer preflight; avoids the 204 call entirely
+app.use('*', cors({ origin: '*', allowHeaders: ['Content-Type'] }))
+
+app.route('/', forecast)
+app.route('/', optimize)
+app.route('/', insight)
+
+export default app
+
