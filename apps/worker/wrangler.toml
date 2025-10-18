@@ -2,13 +2,8 @@ name = "auragrid-worker"
 main = "src/index.ts"
 compatibility_date = "2024-04-03"
 
-
-build.command = "npm run build"
-build.watch_dir = "src"
-
-# Bindings
 kv_namespaces = [
-  { binding = "auragrid_forecast", id = "1fdab222702745d8ab962bf4f2891636" }
+  { binding = "FORECAST_KV", id = "1fdab222702745d8ab962bf4f2891636" }
 ]
 
 [ai]

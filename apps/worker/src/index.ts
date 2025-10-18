@@ -1,18 +1,13 @@
-/**
- * Welcome to Cloudflare Workers! This is your first worker.
- *
- * - Run `npm run dev` in your terminal to start a development server
- * - Open a browser tab at http://localhost:8787/ to see your worker in action
- * - Run `npm run deploy` to publish your worker
- *
- * Bind resources to your worker in `wrangler.jsonc`. After adding bindings, a type definition for the
- * `Env` object can be regenerated with `npm run cf-typegen`.
- *
- * Learn more at https://developers.cloudflare.com/workers/
- */
+import { Hono } from "hono";
+import { forecastRoutes } from "@/routes/forecast";
+import { optimizeRoutes } from "@/routes/optimize";
+import { insightRoutes } from "@/routes/insight";
+import type { AuraContext } from "@/types/env";
 
-export default {
-	async fetch(request, env, ctx): Promise<Response> {
-		return new Response('Hello World!');
-	},
-} satisfies ExportedHandler<Env>;
+const app = new Hono<AuraContext>();
+
+app.route("/", forecastRoutes);
+app.route("/", optimizeRoutes);
+app.route("/", insightRoutes);
+
+export default app;

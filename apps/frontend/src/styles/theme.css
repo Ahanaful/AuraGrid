@@ -1,0 +1,9 @@
+:root {
+  --auragrid-gradient-start: #0f172a;
+  --auragrid-gradient-end: #0f766e;
+}
+
+.hero-gradient {
+  background: radial-gradient(circle at top, rgba(20, 184, 166, 0.35), transparent 55%),
+    linear-gradient(135deg, var(--auragrid-gradient-start), var(--auragrid-gradient-end));
+}
