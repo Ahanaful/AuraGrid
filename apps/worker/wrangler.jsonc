@@ -9,7 +9,14 @@
 	"compatibility_date": "2025-10-11",
 	"observability": {
 		"enabled": true
-	}
+	},
+	"kv_namespaces": [
+		{
+			"binding": "auragrid_forecast",
+			"id": "1fdab222702745d8ab962bf4f2891636",
+			"remote": true
+		}
+	]
 	/**
 	 * Smart Placement
 	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
