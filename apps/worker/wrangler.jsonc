@@ -12,14 +12,22 @@
 	},
 	"kv_namespaces": [
 		{
-			"binding": "FORECAST_KV",
-			"id": "1fdab222702745d8ab962bf4f2891636",
+			"binding": "auragrid_forecast",
+			"id": "06d2375ff45c4a6e966072f5938019f9",
+			"preview_id": "941a8d46d55a49ffb359178267176ec4",
 			"remote": true
 		}
 	],
 	"ai": {
 		"binding": "AI"
-	}
+	},
+	"d1_databases": [
+		{
+			"binding": "auragrid_db",
+			"database_name": "auragrid-db",
+			"database_id": "db9fe875-d8f0-479c-bf5c-b3c2a98d554d"
+		}
+	]
 	/**
 	 * Smart Placement
 	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
