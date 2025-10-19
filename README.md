@@ -6,7 +6,7 @@ AuraGrid is a carbon-aware scheduling toolkit that forecasts load, renewables, a
 
 - `apps/frontend` – Next.js App Router UI with Clerk auth, Recharts visuals, typed service hooks, and a Durable Object control panel.
 - `apps/worker` – Cloudflare Worker (Hono) exposing `/api/forecast`, `/api/optimize`, `/api/insight`, and plan-management routes backed by KV, Durable Objects, Workers AI, and D1.
-- `ml/` (planned) – Prophet script generates `data/forecast.json` that feeds the Worker.
+- `ml/` – Prophet script generates `data/forecast.json` that feeds the Worker.
 
 ## Development
 
