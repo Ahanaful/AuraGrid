@@ -1,100 +1,88 @@
 import Link from "next/link";
 import { Header } from "@/components/common/Header";
+import { buttonClassName } from "@/lib/buttonStyles";
 
 export default function MarketingPage() {
   return (
-    <div className="flex min-h-screen flex-col hero-gradient text-white">
+    <div className="flex min-h-screen flex-col items-center hero-gradient text-white page-fade-in">
       <Header />
-      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-12 px-6 pb-16 pt-20">
-        <section className="flex flex-col gap-6 text-center sm:text-left">
-          <p className="text-sm uppercase tracking-[0.35em] text-teal-300">
-            Forecast. Shift. Sustain.
-          </p>
-          <h1 className="text-4xl font-semibold leading-tight sm:text-5xl">
+      <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col items-center gap-14 px-6 pb-20 pt-20 text-center">
+        <section className="flex flex-col gap-6 glow-entrance">
+          <h1 className="headline-glow text-4xl font-semibold leading-tight sm:text-5xl">
             Carbon-aware scheduling for every AI cluster.
           </h1>
-          <p className="max-w-2xl text-lg text-slate-200">
+          <p className="mx-auto max-w-2xl text-base leading-relaxed text-slate-200 sm:text-lg">
             AuraGrid forecasts load, renewables, and carbon intensity so data
             center teams can move flexible workloads into greener windows—no
             infrastructure rewrites required.
           </p>
-          <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
+          <div className="cta-pulse flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
               href="/app"
-              className="inline-flex items-center justify-center rounded-full bg-teal-400 px-6 py-3 text-base font-semibold text-slate-950 shadow-lg shadow-teal-400/30 transition-transform hover:-translate-y-0.5 hover:bg-teal-300"
+              className={buttonClassName("primary")}
             >
               Start Forecast
             </Link>
             <Link
               href="#impact"
-              className="text-sm font-medium text-slate-200 underline-offset-4 hover:underline"
+              className={buttonClassName("secondary")}
             >
               See impact metrics
             </Link>
           </div>
         </section>
 
-        <section className="grid gap-8 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 shadow-xl backdrop-blur-lg">
-          <div className="grid gap-2">
-            <h2 className="text-xl font-semibold text-white">Why AuraGrid?</h2>
-            <p className="text-sm text-slate-300">
+        <section className="card-fade-in card-float grid w-full gap-10 rounded-3xl border border-white/10 bg-white/5 p-10 shadow-2xl shadow-teal-900/40 backdrop-blur-xl">
+          <div className="grid gap-3 text-center">
+            <h2 className="text-2xl font-semibold text-white">Why AuraGrid?</h2>
+            <p className="mx-auto max-w-2xl text-sm leading-relaxed text-slate-200 sm:text-base">
               Most independent data centers lack the tools hyperscalers use to
               align workloads with renewables. AuraGrid delivers the same
               intelligence through a lightweight Cloudflare Worker + Next.js
               stack tuned for edge reliability.
             </p>
           </div>
-          <dl className="grid grid-cols-1 gap-6 text-left sm:grid-cols-2">
-            <div>
-              <dt className="text-xs uppercase tracking-wider text-slate-400">
+          <dl className="grid grid-cols-1 gap-8 text-left sm:grid-cols-2">
+            <div className="card-fade-in card-float rounded-2xl border border-white/5 bg-white/5 p-6 backdrop-blur">
+              <dt className="text-[0.68rem] font-semibold uppercase tracking-[0.3em] text-slate-200">
                 Environmental Impact
               </dt>
-              <dd className="mt-1 text-base text-white">
+              <dd className="mt-3 text-base leading-relaxed text-white/90">
                 Shift energy-intensive jobs into renewable-rich hours to shrink
                 carbon intensity.
               </dd>
             </div>
-            <div>
-              <dt className="text-xs uppercase tracking-wider text-slate-400">
+            <div className="card-fade-in card-float rounded-2xl border border-white/5 bg-white/5 p-6 backdrop-blur">
+              <dt className="text-[0.68rem] font-semibold uppercase tracking-[0.3em] text-slate-200">
                 Economic Benefit
               </dt>
-              <dd className="mt-1 text-base text-white">
+              <dd className="mt-3 text-base leading-relaxed text-white/90">
                 Leverage off-peak pricing to reduce energy spend without risking
                 SLAs.
               </dd>
             </div>
-            <div>
-              <dt className="text-xs uppercase tracking-wider text-slate-400">
+            <div className="card-fade-in card-float rounded-2xl border border-white/5 bg-white/5 p-6 backdrop-blur">
+              <dt className="text-[0.68rem] font-semibold uppercase tracking-[0.3em] text-slate-200">
                 Operational Confidence
               </dt>
-              <dd className="mt-1 text-base text-white">
+              <dd className="mt-3 text-base leading-relaxed text-white/90">
                 Baseline vs optimized forecasts visualize peak shaving in
                 minutes.
               </dd>
             </div>
-            <div>
-              <dt className="text-xs uppercase tracking-wider text-slate-400">
+            <div className="card-fade-in card-float rounded-2xl border border-white/5 bg-white/5 p-6 backdrop-blur">
+              <dt className="text-[0.68rem] font-semibold uppercase tracking-[0.3em] text-slate-200">
                 AI-ready Insights
               </dt>
-              <dd className="mt-1 text-base text-white">
+              <dd className="mt-3 text-base leading-relaxed text-white/90">
                 Workers AI summarizes carbon savings in plain language for quick
                 leadership updates.
               </dd>
             </div>
           </dl>
         </section>
-
-        <section id="impact" className="grid gap-4 rounded-2xl border border-slate-800 bg-slate-900/30 p-6">
-          <h2 className="text-xl font-semibold text-white">Team Snapshot</h2>
-          <ul className="grid list-disc gap-2 pl-5 text-sm text-slate-200">
-            <li>Backend Worker: Hono routes for forecast, optimize, insight.</li>
-            <li>Frontend Dashboard: Next.js App Router + Tailwind + Recharts.</li>
-            <li>LLM Insights: Workers AI (Llama 3.1 8B) for narrative context.</li>
-            <li>Offline Forecasts: Prophet script uploads to Cloudflare KV.</li>
-          </ul>
-        </section>
       </main>
-      <footer className="border-t border-slate-800 py-6 text-center text-xs text-slate-500">
+      <footer className="w-full border-t border-white/10 py-6 text-center text-xs text-slate-300">
         © {new Date().getFullYear()} AuraGrid. Greener compute for every team.
       </footer>
     </div>
