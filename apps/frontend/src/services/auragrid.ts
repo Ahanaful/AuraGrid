@@ -4,6 +4,9 @@ import type {
   ForecastRow,
   InsightResponse,
   OptimizeResponse,
+  PlanPayload,
+  PlanResponse,
+  OptimizeMetrics,
 } from "@/types/api";
 
 async function handleResponse<T>(res: Response): Promise<T> {
@@ -33,4 +36,33 @@ export async function getInsight(): Promise<InsightResponse> {
     cache: "no-store",
   });
   return handleResponse<InsightResponse>(res);
+}
+
+export async function getPlan(): Promise<PlanResponse> {
+  const res = await fetch(withWorkerBase("/api/plan"), { cache: "no-store" });
+  return handleResponse<PlanResponse>(res);
+}
+
+export async function applyPlan(
+  token: string,
+  payload: PlanPayload,
+  tenant = "demo",
+) {
+  const res = await fetch(withWorkerBase("/api/apply"), {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ token, payload, tenant }),
+  });
+  return handleResponse<{ ok: boolean; version: number }>(res);
+}
+
+export async function reoptimize(): Promise<{
+  ok: boolean;
+  metrics: OptimizeMetrics;
+  version: number;
+}> {
+  const res = await fetch(withWorkerBase("/api/reoptimize"), {
+    method: "POST",
+  });
+  return handleResponse(res);
 }

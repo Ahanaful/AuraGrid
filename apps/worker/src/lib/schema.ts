@@ -5,6 +5,12 @@ export const ForecastRowSchema = z.object({
   load_pred_mw: z.number(),
   solar_mw: z.number().optional(),
   wind_mw: z.number().optional(),
+  renewable_share: z
+    .number()
+    .min(0)
+    .max(1)
+    .optional(),
+  carbon_intensity_kg_per_mwh: z.number().nonnegative().optional(),
 })
 
 export const ForecastArraySchema = z.array(ForecastRowSchema)

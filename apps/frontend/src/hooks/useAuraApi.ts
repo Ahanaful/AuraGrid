@@ -1,17 +1,33 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { getForecast, getInsight, getOptimization } from "@/services/auragrid";
-import type { OptimizeMetrics } from "@/types/api";
+import {
+  applyPlan,
+  getForecast,
+  getInsight,
+  getOptimization,
+  getPlan,
+  reoptimize,
+} from "@/services/auragrid";
+import type { OptimizeMetrics, PlanPayload } from "@/types/api";
 import { PLACEHOLDER_INSIGHT } from "@/lib/constants";
+import { useToast } from "@/components/ui/ToastProvider";
 
-export type LoadingState = "idle" | "forecast" | "optimize" | "insight";
+export type LoadingState =
+  | "idle"
+  | "forecast"
+  | "optimize"
+  | "insight"
+  | "plan"
+  | "reopt"
+  | "apply";
 
 export type SeriesState = {
   base: number[];
   optimized: number[];
   renewable: number[];
   timestamps: string[];
+  intensity: number[];
 };
 
 interface AuraState {
@@ -20,6 +36,8 @@ interface AuraState {
   insight?: string;
   metrics?: OptimizeMetrics;
   series: SeriesState;
+  plan?: PlanPayload | null;
+  turnstileToken?: string;
 }
 
 const initialSeries: SeriesState = {
@@ -27,6 +45,7 @@ const initialSeries: SeriesState = {
   optimized: [],
   renewable: [],
   timestamps: [],
+  intensity: [],
 };
 
 const initialState: AuraState = {
@@ -37,6 +56,7 @@ const initialState: AuraState = {
 
 export function useAuraApi() {
   const [state, setState] = useState<AuraState>(initialState);
+  const { pushToast } = useToast();
 
   const setLoading = useCallback((loading: LoadingState) => {
     setState((prev) => ({ ...prev, loading, error: undefined }));
@@ -63,16 +83,20 @@ export function useAuraApi() {
           optimized: base,
           renewable,
           timestamps,
+          intensity: [],
         },
       }));
     } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to load forecast";
+      pushToast({ variant: "error", message });
       setState((prev) => ({
         ...prev,
         loading: "idle",
-        error: error instanceof Error ? error.message : "Failed to load forecast",
+        error: message,
       }));
     }
-  }, [setLoading]);
+  }, [pushToast, setLoading]);
 
   const optimizeLoad = useCallback(async () => {
     try {
@@ -88,16 +112,20 @@ export function useAuraApi() {
           optimized: response.optimized,
           renewable: response.renewable,
           timestamps: prev.series.timestamps,
+          intensity: response.intensity ?? prev.series.intensity,
         },
       }));
     } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Optimization failed";
+      pushToast({ variant: "error", message });
       setState((prev) => ({
         ...prev,
         loading: "idle",
-        error: error instanceof Error ? error.message : "Optimization failed",
+        error: message,
       }));
     }
-  }, [setLoading]);
+  }, [pushToast, setLoading]);
 
   const fetchInsight = useCallback(async () => {
     if (!state.metrics) {
@@ -118,13 +146,95 @@ export function useAuraApi() {
         metrics: result.metrics ?? prev.metrics,
       }));
     } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Insight request failed";
+      pushToast({ variant: "error", message });
       setState((prev) => ({
         ...prev,
         loading: "idle",
-        error: error instanceof Error ? error.message : "Insight request failed",
+        error: message,
       }));
     }
-  }, [setLoading, state.metrics]);
+  }, [pushToast, setLoading, state.metrics]);
+
+  const loadPlan = useCallback(async () => {
+    try {
+      setLoading("plan");
+      const plan = await getPlan();
+      setState((prev) => ({
+        ...prev,
+        loading: "idle",
+        plan,
+      }));
+      pushToast({ variant: "success", message: "Plan refreshed." });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to load plan";
+      pushToast({ variant: "error", message });
+      setState((prev) => ({
+        ...prev,
+        loading: "idle",
+        error: message,
+      }));
+    }
+  }, [pushToast, setLoading]);
+
+  const reoptimizePlan = useCallback(async () => {
+    try {
+      setLoading("reopt");
+      const result = await reoptimize();
+      await loadPlan();
+      setState((prev) => ({
+        ...prev,
+        loading: "idle",
+        metrics: result.metrics,
+        insight: PLACEHOLDER_INSIGHT,
+      }));
+      pushToast({ variant: "success", message: "Plan reoptimized." });
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Reoptimization failed";
+      pushToast({ variant: "error", message });
+      setState((prev) => ({
+        ...prev,
+        loading: "idle",
+        error: message,
+      }));
+    }
+  }, [loadPlan, pushToast, setLoading]);
+
+  const applyCurrentPlan = useCallback(
+    async (token: string) => {
+      if (!state.plan) {
+        const message = "No plan loaded to apply.";
+        pushToast({ variant: "error", message });
+        setState((prev) => ({
+          ...prev,
+          error: message,
+        }));
+        return;
+      }
+
+      try {
+        setLoading("apply");
+        await applyPlan(token, state.plan);
+        setState((prev) => ({
+          ...prev,
+          loading: "idle",
+        }));
+        pushToast({ variant: "success", message: "Plan applied." });
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Failed to apply the plan";
+        pushToast({ variant: "error", message });
+        setState((prev) => ({
+          ...prev,
+          loading: "idle",
+          error: message,
+        }));
+      }
+    },
+    [pushToast, setLoading, state.plan],
+  );
 
   const reset = useCallback(() => {
     setState({
@@ -135,6 +245,7 @@ export function useAuraApi() {
         optimized: [],
         renewable: [],
         timestamps: [],
+        intensity: [],
       },
     });
   }, []);
@@ -144,6 +255,11 @@ export function useAuraApi() {
     loadForecast,
     optimizeLoad,
     fetchInsight,
+    loadPlan,
+    reoptimizePlan,
+    applyCurrentPlan,
+    setTurnstileToken: (token: string) =>
+      setState((prev) => ({ ...prev, turnstileToken: token })),
     reset,
   };
 }

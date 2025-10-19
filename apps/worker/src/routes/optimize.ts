@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { readForecast } from '../adapters/kvStore'
-import { greedyOptimize } from '../domain/optimize'
+import { carbonAwareOptimize } from '../domain/optimize'
 import { computeMetrics } from '../domain/metrics'
 
 export const optimize = new Hono<{ Bindings: { auragrid_forecast: KVNamespace } }>()
@@ -18,8 +18,22 @@ optimize.get('/api/optimize', async (c) => {
 
   const base = rows.map((row) => row.load_pred_mw)
   const renewable = rows.map((row) => (row.solar_mw ?? 0) + (row.wind_mw ?? 0))
-  const optimized = greedyOptimize(base, renewable)
-  const metrics = computeMetrics(base, optimized, renewable)
+  const intensity = rows.map((row, index) => {
+    const explicit = row.carbon_intensity_kg_per_mwh
+    if (typeof explicit === 'number' && Number.isFinite(explicit)) {
+      return explicit
+    }
 
-  return c.json({ base, optimized, renewable, metrics })
+    const load = base[index] ?? 0
+    const renewables = renewable[index] ?? 0
+    const share = row.renewable_share ?? (load > 0 ? Math.min(Math.max(renewables / load, 0), 1) : 0)
+    const baseline = 450
+    const minimum = 80
+    return minimum + (baseline - minimum) * (1 - share)
+  })
+
+  const { optimized, shifts } = carbonAwareOptimize(base, intensity)
+  const metrics = computeMetrics(base, optimized, renewable, intensity)
+
+  return c.json({ base, optimized, renewable, intensity, metrics, shifts })
 })

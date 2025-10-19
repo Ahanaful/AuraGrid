@@ -3,8 +3,50 @@ main = "src/index.ts"
 compatibility_date = "2024-04-03"
 
 kv_namespaces = [
-  { binding = "FORECAST_KV", id = "1fdab222702745d8ab962bf4f2891636" }
+  { binding = "auragrid_forecast", id = "06d2375ff45c4a6e966072f5938019f9", preview_id = "941a8d46d55a49ffb359178267176ec4"}
 ]
+
+[env.dev]
+workers_dev = true
+
+[env.prod]
+  kv_namespaces = [
+    { binding = "auragrid_forecast", id = "06d2375ff45c4a6e966072f5938019f9", preview_id = "941a8d46d55a49ffb359178267176ec4" }
+  ]
+
+
 
 [ai]
 binding = "AI"
+
+# Durable Object binding
+[durable_objects]
+bindings = [
+  { name = "SCHEDULER_DO", class_name = "SchedulerDO" }
+]
+
+
+[[migrations]]
+tag = "001_scheduler_do"
+new_sqlite_classes = ["SchedulerDO"]
+
+[observability]
+[observability.logs]
+enabled = true
+#head_sampling_rate = 1
+#invocation_logs = true
+#persist = true
+
+# D1 binding
+[[d1_databases]]
+binding = "auragrid_db"
+database_name = "auragrid-db"
+database_id = "db9fe875-d8f0-479c-bf5c-b3c2a98d554d"
+
+# Cron: every 15 minutes
+[[triggers]]
+crons = ["*/15 * * * *"]
+
+# Turnstile (set the secret as a Wrangler secret; site key is public if you need it)
+[vars]
+TURNSTILE_SITE_KEY = "REPLACE_IN_FRONTEND"

@@ -3,6 +3,8 @@ export type ForecastRow = {
   load_pred_mw: number
   solar_mw?: number
   wind_mw?: number
+  renewable_share?: number
+  carbon_intensity_kg_per_mwh?: number
 }
 
 export type OptimizeMetrics = {
