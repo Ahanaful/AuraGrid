@@ -37,7 +37,13 @@ export type PlanPayload = {
   metrics: OptimizeMetrics;
 };
 
-export type PlanResponse = PlanPayload | null;
+export type PlanRecord = PlanPayload & {
+  trigger?: string | null;
+  updatedAt: number;
+  nextAlarmAt?: number | null;
+};
+
+export type PlanResponse = PlanRecord | null;
 
 export type ApplyPlanRequest = {
   payload: PlanPayload;

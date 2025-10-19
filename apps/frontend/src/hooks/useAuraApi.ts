@@ -9,7 +9,7 @@ import {
   getPlan,
   reoptimize,
 } from "@/services/auragrid";
-import type { OptimizeMetrics, PlanPayload } from "@/types/api";
+import type { OptimizeMetrics, PlanPayload, PlanRecord } from "@/types/api";
 import { PLACEHOLDER_INSIGHT } from "@/lib/constants";
 import { useToast } from "@/components/ui/ToastProvider";
 
@@ -36,7 +36,7 @@ interface AuraState {
   insight?: string;
   metrics?: OptimizeMetrics;
   series: SeriesState;
-  plan?: PlanPayload | null;
+  plan?: PlanRecord | null;
 }
 
 const initialSeries: SeriesState = {
@@ -52,6 +52,15 @@ const initialState: AuraState = {
   insight: PLACEHOLDER_INSIGHT,
   series: initialSeries,
 };
+
+function toPlanPayload(plan: PlanRecord): PlanPayload {
+  const { version, plan: series, metrics } = plan;
+  return {
+    version,
+    plan: series,
+    metrics,
+  };
+}
 
 export function useAuraApi() {
   const [state, setState] = useState<AuraState>(initialState);
@@ -209,7 +218,7 @@ export function useAuraApi() {
 
       try {
         setLoading("apply");
-        await applyPlan(state.plan);
+        await applyPlan(toPlanPayload(state.plan));
         setState((prev) => ({
           ...prev,
           loading: "idle",

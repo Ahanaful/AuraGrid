@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { applyPlanToDO, logRun } from '../services/reoptimizer'
-import type { PlanPayload } from '../types/plan'
+import type { PlanPayload, StoredPlan } from '../types/plan'
 
 export const plan = new Hono<{
   Bindings: {
@@ -24,8 +24,17 @@ plan.get('/api/plan', async (c) => {
     return c.json({ error: 'do_error' }, 500)
   }
 
-  const data = (await resp.json()) as PlanPayload | null
-  return c.json(data ?? null)
+  const data = (await resp.json()) as StoredPlan | null
+  if (!data) return c.json(null)
+
+  const payload = {
+    ...data.payload,
+    trigger: data.trigger ?? null,
+    updatedAt: data.updatedAt,
+    nextAlarmAt: data.nextAlarmAt ?? null,
+  }
+
+  return c.json(payload)
 })
 
 plan.post('/api/apply', async (c) => {
