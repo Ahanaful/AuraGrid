@@ -128,14 +128,6 @@ export function useAuraApi() {
   }, [pushToast, setLoading]);
 
   const fetchInsight = useCallback(async () => {
-    if (!state.metrics) {
-      setState((prev) => ({
-        ...prev,
-        error: "Run Optimize before requesting an insight.",
-      }));
-      return;
-    }
-
     try {
       setLoading("insight");
       const result = await getInsight();
@@ -143,7 +135,7 @@ export function useAuraApi() {
         ...prev,
         loading: "idle",
         insight: result.summary,
-        metrics: result.metrics ?? prev.metrics,
+        metrics: result.metrics ?? prev.metrics ?? prev.plan?.metrics,
       }));
     } catch (error) {
       const message =
@@ -155,7 +147,7 @@ export function useAuraApi() {
         error: message,
       }));
     }
-  }, [pushToast, setLoading, state.metrics]);
+  }, [pushToast, setLoading]);
 
   const loadPlan = useCallback(async () => {
     try {
@@ -165,6 +157,7 @@ export function useAuraApi() {
         ...prev,
         loading: "idle",
         plan,
+        metrics: plan?.metrics ?? prev.metrics,
       }));
       pushToast({ variant: "success", message: "Plan refreshed." });
     } catch (error) {

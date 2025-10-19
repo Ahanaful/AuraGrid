@@ -35,3 +35,17 @@ export function formatHourLabel(value: string) {
     weekday: "short",
   });
 }
+
+export function formatDateWithWeekday(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "America/Chicago",
+    timeZoneName: "short",
+  }).format(date);
+}

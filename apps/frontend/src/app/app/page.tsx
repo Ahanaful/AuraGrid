@@ -7,7 +7,13 @@ import { LoadChart } from "@/components/charts/LoadChart";
 import { RequireAuth } from "@/components/auth/RequireAuth";
 import { Button } from "@/components/ui/button";
 import { useAuraApi } from "@/hooks/useAuraApi";
-import { formatCo2, formatPercent, formatPower, formatHourLabel } from "@/lib/formatting";
+import {
+  formatCo2,
+  formatPercent,
+  formatPower,
+  formatHourLabel,
+  formatDateWithWeekday,
+} from "@/lib/formatting";
 
 export default function DashboardPage() {
   const {
@@ -21,7 +27,10 @@ export default function DashboardPage() {
     reset,
   } = useAuraApi();
 
-  const metrics = useMemo(() => state.metrics ?? null, [state.metrics]);
+  const metrics = useMemo(
+    () => state.metrics ?? state.plan?.metrics ?? null,
+    [state.metrics, state.plan],
+  );
   const planMetrics = state.plan?.metrics ?? null;
   const intensityExtrema = useMemo(() => {
     const { intensity, timestamps } = state.series;
@@ -47,6 +56,17 @@ export default function DashboardPage() {
       },
     };
   }, [state.series]);
+
+  const datasetRange = useMemo(() => {
+    const timestamps = state.series.timestamps;
+    if (!timestamps.length) return null;
+    const first = timestamps[0];
+    const last = timestamps[timestamps.length - 1];
+    return {
+      start: first,
+      end: last,
+    };
+  }, [state.series.timestamps]);
 
   return (
     <RequireAuth>
@@ -109,12 +129,14 @@ export default function DashboardPage() {
                   </p>
                   <div className="grid gap-2 text-sm text-white/80 sm:grid-cols-3">
                     <span>
-                      Peak Reduction: {formatPercent(state.plan.metrics.peak_reduction_pct)}
+                      Peak Reduction: {formatPercent(state.plan.metrics?.peak_reduction_pct ?? 0)}
                     </span>
                     <span>
-                      Renewable Gain: {formatPercent(state.plan.metrics.renewable_gain_pct)}
+                      Renewable Gain: {formatPercent(state.plan.metrics?.renewable_gain_pct ?? 0)}
                     </span>
-                    <span>CO₂ Avoided: {formatCo2(state.plan.metrics.co2_avoided_kg)}</span>
+                    <span>
+                      CO₂ Avoided: {formatCo2(state.plan.metrics?.co2_avoided_kg ?? 0)}
+                    </span>
                   </div>
                 </>
               ) : (
@@ -199,6 +221,13 @@ export default function DashboardPage() {
             <p className="leading-relaxed">
               Forecast points loaded: <strong className="font-semibold text-white">{state.series.base.length}</strong>
             </p>
+            {datasetRange ? (
+              <p className="leading-relaxed text-xs text-white/70">
+                Dataset window: <strong className="text-white">{formatDateWithWeekday(datasetRange.start)}</strong>
+                {" "}to{" "}
+                <strong className="text-white">{formatDateWithWeekday(datasetRange.end)}</strong>
+              </p>
+            ) : null}
             {state.series.base.length > 0 ? (
               <p className="leading-relaxed">
                 Peak baseline load: {formatPower(Math.max(...state.series.base))}
@@ -207,11 +236,11 @@ export default function DashboardPage() {
             {intensityExtrema ? (
               <div className="space-y-1 text-xs leading-relaxed text-white/70">
                 <p>
-                  Cleanest hour: <strong className="text-white">{formatHourLabel(intensityExtrema.clean.time)}</strong>{" "}
+                  Cleanest hour: <strong className="text-white">{formatDateWithWeekday(intensityExtrema.clean.time)}</strong>{" "}
                   ({Math.round(intensityExtrema.clean.value)} kg CO₂/MWh)
                 </p>
                 <p>
-                  Dirtiest hour: <strong className="text-white">{formatHourLabel(intensityExtrema.dirty.time)}</strong>{" "}
+                  Dirtiest hour: <strong className="text-white">{formatDateWithWeekday(intensityExtrema.dirty.time)}</strong>{" "}
                   ({Math.round(intensityExtrema.dirty.value)} kg CO₂/MWh)
                 </p>
               </div>
