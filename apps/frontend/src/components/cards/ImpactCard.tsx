@@ -6,12 +6,12 @@ interface ImpactCardProps {
 
 export function ImpactCard({ title, description, value }: ImpactCardProps) {
   return (
-    <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+    <article className="card-fade-in card-float rounded-3xl border border-white/10 bg-white/5 p-6 text-left text-white backdrop-blur-xl transition-transform duration-500">
+      <h3 className="text-xs font-semibold uppercase tracking-[0.35em] text-white/70">
         {title}
       </h3>
-      <p className="mt-4 text-3xl font-semibold text-slate-900">{value}</p>
-      <p className="mt-2 text-sm text-slate-500">{description}</p>
+      <p className="mt-4 text-3xl font-semibold text-white">{value}</p>
+      <p className="mt-3 text-sm leading-relaxed text-white/70">{description}</p>
     </article>
   );
 }

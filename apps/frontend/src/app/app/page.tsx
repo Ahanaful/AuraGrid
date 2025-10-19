@@ -22,21 +22,18 @@ export default function DashboardPage() {
 
   return (
     <RequireAuth>
-      <div className="min-h-screen bg-slate-50 text-slate-900">
+      <div className="page-fade-in flex min-h-screen flex-col items-center hero-gradient text-white">
         <Header />
-        <main className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 pb-16 pt-12">
-          <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
-            <div className="max-w-xl space-y-2">
-              <p className="text-sm font-medium uppercase tracking-[0.2em] text-teal-600">
-                Dashboard
-              </p>
-              <h1 className="text-3xl font-semibold">AuraGrid Forecast Console</h1>
-              <p className="text-sm text-slate-600">
-                Trigger the latest KV snapshot, run the optimization heuristic, and
-                pull an AI summary to brief your ops team.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-3">
+        <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col items-center gap-12 px-6 pb-20 pt-24 text-center">
+          <section className="glow-entrance flex flex-col items-center gap-5">
+            <h1 className="headline-glow text-4xl font-semibold leading-tight sm:text-5xl">
+              AuraGrid Forecast Console
+            </h1>
+            <p className="mx-auto max-w-2xl text-base leading-relaxed text-white/70 sm:text-lg">
+              Trigger the latest KV snapshot, run the optimization heuristic, and pull an AI summary
+              to brief your ops team.
+            </p>
+            <div className="cta-pulse flex flex-wrap items-center justify-center gap-3 pt-2">
               <Button onClick={loadForecast} loading={state.loading === "forecast"}>
                 Start Forecast
               </Button>
@@ -60,7 +57,7 @@ export default function DashboardPage() {
                 Reset
               </Button>
             </div>
-          </div>
+          </section>
 
           <LoadChart
             base={state.series.base}
@@ -70,7 +67,7 @@ export default function DashboardPage() {
             loading={state.loading === "forecast" || state.loading === "optimize"}
           />
 
-          <section className="grid gap-4 sm:grid-cols-3">
+          <section className="card-fade-in grid w-full gap-4 sm:grid-cols-3">
             <ImpactCard
               title="Peak Reduction"
               description="Decline in megawatts operating above the 90% threshold."
@@ -88,28 +85,28 @@ export default function DashboardPage() {
             />
           </section>
 
-          <section className="rounded-2xl border border-slate-200 bg-white p-6">
-            <h2 className="text-lg font-semibold text-slate-900">AI Insight</h2>
-            <p className="mt-2 text-sm text-slate-500">
+          <section className="card-fade-in w-full rounded-3xl border border-white/10 bg-white/5 p-8 text-left text-white backdrop-blur-xl shadow-2xl shadow-teal-900/40">
+            <h2 className="text-lg font-semibold text-white">AI Insight</h2>
+            <p className="mt-2 text-sm leading-relaxed text-white/70">
               Workers AI summarizes why the optimization matters in plain language.
             </p>
-            <div className="mt-4 min-h-[120px] rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm leading-relaxed text-slate-700">
+            <div className="mt-4 min-h-[120px] rounded-2xl border border-dashed border-white/20 bg-white/5 p-5 text-sm leading-relaxed text-white/80">
               {state.insight ?? "Run Optimize to request an insight."}
             </div>
           </section>
 
-          <section className="grid gap-3 rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-600">
-            <h2 className="text-lg font-semibold text-slate-900">Active Dataset</h2>
-            <p>
-              Forecast points loaded: <strong>{state.series.base.length}</strong>
+          <section className="card-fade-in grid w-full gap-4 rounded-3xl border border-white/10 bg-white/5 p-8 text-left text-sm text-white/80 backdrop-blur-xl shadow-2xl shadow-teal-900/40">
+            <h2 className="text-lg font-semibold text-white">Active Dataset</h2>
+            <p className="leading-relaxed">
+              Forecast points loaded: <strong className="font-semibold text-white">{state.series.base.length}</strong>
             </p>
             {state.series.base.length > 0 ? (
-              <p>
+              <p className="leading-relaxed">
                 Peak baseline load: {formatPower(Math.max(...state.series.base))}
               </p>
             ) : null}
             {state.error ? (
-              <p className="text-sm font-medium text-red-600">{state.error}</p>
+              <p className="text-sm font-medium text-red-300">{state.error}</p>
             ) : null}
           </section>
         </main>

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
+import { buttonClassName } from "@/lib/buttonStyles";
 
 const navLinks = [
   { href: "/", label: "Overview" },
@@ -13,32 +14,36 @@ export function Header() {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-30 w-full border-b border-slate-200 bg-white/85 backdrop-blur">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-        <Link href="/" className="text-lg font-semibold text-slate-900">
+    <header className="sticky top-0 z-30 w-full border-b border-white/10 bg-slate-950/60 text-white backdrop-blur transition-colors duration-300">
+      <div className="flex w-full flex-col items-center gap-4 px-4 py-4 sm:flex-row sm:justify-between sm:px-6 lg:px-8">
+        <Link href="/" className="text-2xl font-semibold tracking-tight text-white">
           AuraGrid
         </Link>
-        <nav className="flex items-center gap-6 text-sm font-medium text-slate-600">
+        <nav className="flex items-center gap-6 text-sm font-semibold text-white/85">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className={`transition-colors hover:text-slate-900 ${
-                pathname === link.href ? "text-slate-900" : ""
+              className={`relative transition-colors duration-200 ${
+                "hover:text-white"
+              } ${
+                pathname === link.href
+                  ? "text-white after:absolute after:-bottom-1 after:left-1/2 after:h-0.5 after:w-6 after:-translate-x-1/2 after:bg-white"
+                  : ""
               }`}
             >
               {link.label}
             </Link>
           ))}
         </nav>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <SignedIn>
             <UserButton afterSignOutUrl="/" />
           </SignedIn>
           <SignedOut>
             <Link
               href="/sign-in"
-              className="rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-700"
+              className={buttonClassName("secondary")}
             >
               Sign in
             </Link>
