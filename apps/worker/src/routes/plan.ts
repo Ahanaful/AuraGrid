@@ -26,14 +26,17 @@ plan.get('/api/plan', async (c) => {
     return c.json({ error: 'do_error' }, 500)
   }
 
-  const data = await resp.json<any>()
+  const data = (await resp.json()) as PlanPayload | null
   return c.json(data ?? null)
 })
 
 plan.post('/api/apply', async (c) => {
-  const { token, payload, tenant = 'demo' } = await c.req.json<{
-    token: string; payload: PlanPayload; tenant?: string
-  }>()
+  const body = (await c.req.json()) as {
+    token: string
+    payload: PlanPayload
+    tenant?: string
+  }
+  const { token, payload, tenant = 'demo' } = body
   const ok = await verifyTurnstile(c.env.TURNSTILE_SECRET, token, c.req.header('cf-connecting-ip') || undefined)
   if (!ok) return c.json({ error: 'turnstile_failed' }, 400)
 

@@ -3,6 +3,8 @@ export type ForecastRow = {
   load_pred_mw: number;
   solar_mw?: number;
   wind_mw?: number;
+  renewable_share?: number;
+  carbon_intensity_kg_per_mwh?: number;
 };
 
 export type OptimizeMetrics = {
@@ -15,6 +17,7 @@ export type OptimizeResponse = {
   base: number[];
   optimized: number[];
   renewable: number[];
+  intensity?: number[];
   metrics: OptimizeMetrics;
   shifts?: number;
 };
@@ -22,4 +25,22 @@ export type OptimizeResponse = {
 export type InsightResponse = {
   summary: string;
   metrics?: OptimizeMetrics;
+};
+
+export type PlanPayload = {
+  version: number;
+  plan: {
+    base: number[];
+    optimized: number[];
+    renewable: number[];
+  };
+  metrics: OptimizeMetrics;
+};
+
+export type PlanResponse = PlanPayload | null;
+
+export type ApplyPlanRequest = {
+  token: string;
+  payload: PlanPayload;
+  tenant?: string;
 };

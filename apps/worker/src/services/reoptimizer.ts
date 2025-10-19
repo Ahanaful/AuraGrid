@@ -1,5 +1,5 @@
 import { readForecast } from '../adapters/kvStore'
-import { greedyOptimize } from '../domain/optimize'
+import { carbonAwareOptimize } from '../domain/optimize'
 import { computeMetrics } from '../domain/metrics'
 import type { ForecastRow } from '../types/api'
 import type { PlanPayload, RunTrigger } from '../types/plan'
@@ -29,8 +29,21 @@ export async function computePlanFromForecast(
 
   const base = rows.map((r) => r.load_pred_mw)
   const renewable = rows.map((r) => (r.solar_mw ?? 0) + (r.wind_mw ?? 0))
-  const optimized = greedyOptimize(base, renewable)
-  const metrics = computeMetrics(base, optimized, renewable)
+  const intensity = rows.map((row, index) => {
+    if (typeof row.carbon_intensity_kg_per_mwh === 'number') {
+      return row.carbon_intensity_kg_per_mwh
+    }
+
+    const load = base[index] ?? 0
+    const renewables = renewable[index] ?? 0
+    const share = row.renewable_share ?? (load > 0 ? Math.min(Math.max(renewables / load, 0), 1) : 0)
+    const baseline = 450
+    const minimum = 80
+    return minimum + (baseline - minimum) * (1 - share)
+  })
+
+  const { optimized } = carbonAwareOptimize(base, intensity)
+  const metrics = computeMetrics(base, optimized, renewable, intensity)
 
   const payload: PlanPayload = {
     version,

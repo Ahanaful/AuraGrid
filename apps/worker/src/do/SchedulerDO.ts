@@ -84,7 +84,7 @@ export class SchedulerDO {
 
     if (!computed) {
       // Forecast missing; check again later
-      await this.storage.setAlarm(Date.now() + AUTO_REOPT_DELAY_MS)
+      await this.storage.setAlarm(new Date(Date.now() + AUTO_REOPT_DELAY_MS))
       return
     }
 
@@ -104,7 +104,9 @@ export class SchedulerDO {
     }
 
     await this.storage.put('plan', newRecord)
-    await this.storage.setAlarm(newRecord.nextAlarmAt)
+    if (newRecord.nextAlarmAt) {
+      await this.storage.setAlarm(new Date(newRecord.nextAlarmAt))
+    }
 
     await logRun(
       { auragrid_db: this.env.auragrid_db },

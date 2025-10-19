@@ -13,8 +13,8 @@ export default function MarketingPage() {
           </h1>
           <p className="mx-auto max-w-2xl text-base leading-relaxed text-slate-200 sm:text-lg">
             AuraGrid forecasts load, renewables, and carbon intensity so data
-            center teams can move flexible workloads into greener windows—no
-            infrastructure rewrites required.
+            center teams can move flexible workloads into greener windows while
+            respecting grid peaks—no infrastructure rewrites required.
           </p>
           <div className="cta-pulse flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
@@ -66,8 +66,8 @@ export default function MarketingPage() {
                 Operational Confidence
               </dt>
               <dd className="mt-3 text-base leading-relaxed text-white/90">
-                Baseline vs optimized forecasts visualize peak shaving in
-                minutes.
+                Baseline vs optimized views show how we stay under peak guardrails
+                while chasing the cleanest hours.
               </dd>
             </div>
             <div className="card-fade-in card-float rounded-2xl border border-white/5 bg-white/5 p-6 backdrop-blur">

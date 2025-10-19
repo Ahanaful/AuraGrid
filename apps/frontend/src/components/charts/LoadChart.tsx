@@ -17,6 +17,7 @@ interface LoadChartProps {
   renewable: number[];
   timestamps: string[];
   loading?: boolean;
+  intensity?: number[];
 }
 
 export function LoadChart({
@@ -25,6 +26,7 @@ export function LoadChart({
   renewable,
   timestamps,
   loading = false,
+  intensity = [],
 }: LoadChartProps) {
   const hasData = base.length > 0 && timestamps.length === base.length;
 
@@ -34,6 +36,7 @@ export function LoadChart({
         base: base[idx] ?? 0,
         optimized: optimized[idx] ?? base[idx] ?? 0,
         renewable: renewable[idx] ?? 0,
+        intensity: intensity[idx] ?? null,
       }))
     : [];
 
@@ -48,8 +51,8 @@ export function LoadChart({
         ) : null}
       </div>
       <p className="mt-2 text-sm leading-relaxed text-white/70">
-        Visualize the baseline load alongside renewable availability and the
-        optimized profile produced by the heuristic.
+        Visualize the baseline load alongside renewable availability, the carbon-intensity trend,
+        and the optimized profile produced by the planner.
       </p>
       <div className="mt-6 h-80 w-full">
         {hasData ? (
@@ -62,19 +65,41 @@ export function LoadChart({
                 tick={{ fill: "#cbd5f5", fontSize: 12 }}
               />
               <YAxis
+                yAxisId="load"
                 tickFormatter={formatPower}
                 stroke="#cbd5f5"
                 tick={{ fill: "#cbd5f5", fontSize: 12 }}
                 width={70}
               />
+              <YAxis
+                yAxisId="intensity"
+                orientation="right"
+                tickFormatter={(value: number) => `${Math.round(value)} kg`}
+                stroke="#fcd34d"
+                tick={{ fill: "#fde68a", fontSize: 12 }}
+                width={80}
+              />
               <Tooltip
-                formatter={(value: number) => formatPower(value)}
+                formatter={(value: number, name: string) =>
+                  name === 'Carbon Intensity'
+                    ? [`${Math.round(value)} kg/MWh`, name]
+                    : [formatPower(value), name]
+                }
                 labelFormatter={(label: string) => formatHourLabel(label)}
               />
               <Legend wrapperStyle={{ color: "#e2e8f0" }} />
-              <Line type="monotone" dataKey="base" stroke="#94a3b8" strokeWidth={2} dot={false} name="Baseline" />
-              <Line type="monotone" dataKey="optimized" stroke="#38bdf8" strokeWidth={2} dot={false} name="Optimized" />
-              <Line type="monotone" dataKey="renewable" stroke="#34d399" strokeWidth={2} dot={false} name="Renewable" />
+              <Line yAxisId="load" type="monotone" dataKey="base" stroke="#94a3b8" strokeWidth={2} dot={false} name="Baseline" />
+              <Line yAxisId="load" type="monotone" dataKey="optimized" stroke="#38bdf8" strokeWidth={2} dot={false} name="Optimized" />
+              <Line yAxisId="load" type="monotone" dataKey="renewable" stroke="#34d399" strokeWidth={2} dot={false} name="Renewable" />
+              <Line
+                yAxisId="intensity"
+                type="monotone"
+                dataKey="intensity"
+                stroke="#fcd34d"
+                strokeWidth={2}
+                dot={false}
+                name="Carbon Intensity"
+              />
             </LineChart>
           </ResponsiveContainer>
         ) : (

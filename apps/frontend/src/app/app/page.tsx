@@ -7,7 +7,7 @@ import { LoadChart } from "@/components/charts/LoadChart";
 import { RequireAuth } from "@/components/auth/RequireAuth";
 import { Button } from "@/components/ui/button";
 import { useAuraApi } from "@/hooks/useAuraApi";
-import { formatCo2, formatPercent, formatPower } from "@/lib/formatting";
+import { formatCo2, formatPercent, formatPower, formatHourLabel } from "@/lib/formatting";
 
 export default function DashboardPage() {
   const {
@@ -15,10 +15,38 @@ export default function DashboardPage() {
     loadForecast,
     optimizeLoad,
     fetchInsight,
+    loadPlan,
+    reoptimizePlan,
+    applyCurrentPlan,
     reset,
   } = useAuraApi();
 
   const metrics = useMemo(() => state.metrics ?? null, [state.metrics]);
+  const planMetrics = state.plan?.metrics ?? null;
+  const intensityExtrema = useMemo(() => {
+    const { intensity, timestamps } = state.series;
+    if (!intensity.length || intensity.length !== timestamps.length) {
+      return null;
+    }
+
+    let cleanIndex = 0;
+    let dirtyIndex = 0;
+    intensity.forEach((value, index) => {
+      if (value < intensity[cleanIndex]) cleanIndex = index;
+      if (value > intensity[dirtyIndex]) dirtyIndex = index;
+    });
+
+    return {
+      clean: {
+        value: intensity[cleanIndex],
+        time: timestamps[cleanIndex],
+      },
+      dirty: {
+        value: intensity[dirtyIndex],
+        time: timestamps[dirtyIndex],
+      },
+    };
+  }, [state.series]);
 
   return (
     <RequireAuth>
@@ -30,8 +58,8 @@ export default function DashboardPage() {
               AuraGrid Forecast Console
             </h1>
             <p className="mx-auto max-w-2xl text-base leading-relaxed text-white/70 sm:text-lg">
-              Trigger the latest KV snapshot, run the optimization heuristic, and pull an AI summary
-              to brief your ops team.
+              Load the latest forecast, shift flexible workloads into the cleanest hours, and brief
+              your ops team on the avoided emissions in seconds.
             </p>
             <div className="cta-pulse flex flex-wrap items-center justify-center gap-3 pt-2">
               <Button onClick={loadForecast} loading={state.loading === "forecast"}>
@@ -64,24 +92,95 @@ export default function DashboardPage() {
             optimized={state.series.optimized}
             renewable={state.series.renewable}
             timestamps={state.series.timestamps}
+            intensity={state.series.intensity}
             loading={state.loading === "forecast" || state.loading === "optimize"}
           />
+
+          <section className="card-fade-in w-full rounded-3xl border border-white/10 bg-white/5 p-8 text-left text-white backdrop-blur-xl shadow-2xl shadow-teal-900/40">
+            <h2 className="text-lg font-semibold text-white">Latest Carbon-Aware Plan</h2>
+            <p className="mt-1 text-sm text-white/70">
+              Plans persist in Cloudflare Durable Objects so you can review or re-apply the low-carbon schedule.
+            </p>
+            <div className="mt-4 grid gap-3 rounded-2xl border border-white/10 bg-white/5 p-5">
+              {state.plan ? (
+                <>
+                  <p className="text-sm text-white/70">
+                    Version: <span className="font-semibold text-white">{state.plan.version}</span>
+                  </p>
+                  <div className="grid gap-2 text-sm text-white/80 sm:grid-cols-3">
+                    <span>
+                      Peak Reduction: {formatPercent(state.plan.metrics.peak_reduction_pct)}
+                    </span>
+                    <span>
+                      Renewable Gain: {formatPercent(state.plan.metrics.renewable_gain_pct)}
+                    </span>
+                    <span>CO₂ Avoided: {formatCo2(state.plan.metrics.co2_avoided_kg)}</span>
+                  </div>
+                </>
+              ) : (
+                <p className="text-sm text-white/70">
+                  No persisted plan yet. Refresh to load the current Durable Object snapshot.
+                </p>
+              )}
+            </div>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <Button onClick={loadPlan} loading={state.loading === "plan"}>
+                Refresh Plan
+              </Button>
+              <Button
+                onClick={reoptimizePlan}
+                loading={state.loading === "reopt"}
+                variant="secondary"
+              >
+                Reoptimize + Persist
+              </Button>
+              <Button
+                onClick={() => applyCurrentPlan("dev-placeholder")}
+                loading={state.loading === "apply"}
+                disabled={!state.plan}
+                variant="ghost"
+              >
+                Apply Plan
+              </Button>
+            </div>
+            <p className="mt-3 text-xs text-teal-200/70">
+              Turnstile is mocked for the hackathon demo by sending a placeholder token.
+            </p>
+          </section>
 
           <section className="card-fade-in grid w-full gap-4 sm:grid-cols-3">
             <ImpactCard
               title="Peak Reduction"
               description="Decline in megawatts operating above the 90% threshold."
-              value={metrics ? formatPercent(metrics.peak_reduction_pct) : "—"}
+              value={
+                planMetrics
+                  ? formatPercent(planMetrics.peak_reduction_pct)
+                  : metrics
+                  ? formatPercent(metrics.peak_reduction_pct)
+                  : "—"
+              }
             />
             <ImpactCard
               title="Renewable Share"
               description="Increase in overlap between compute load and renewable supply."
-              value={metrics ? formatPercent(metrics.renewable_gain_pct) : "—"}
+              value={
+                planMetrics
+                  ? formatPercent(planMetrics.renewable_gain_pct)
+                  : metrics
+                  ? formatPercent(metrics.renewable_gain_pct)
+                  : "—"
+              }
             />
             <ImpactCard
               title="CO₂ Avoided"
               description="Daily savings versus the unshifted baseline."
-              value={metrics ? formatCo2(metrics.co2_avoided_kg) : "—"}
+              value={
+                planMetrics
+                  ? formatCo2(planMetrics.co2_avoided_kg)
+                  : metrics
+                  ? formatCo2(metrics.co2_avoided_kg)
+                  : "—"
+              }
             />
           </section>
 
@@ -104,6 +203,18 @@ export default function DashboardPage() {
               <p className="leading-relaxed">
                 Peak baseline load: {formatPower(Math.max(...state.series.base))}
               </p>
+            ) : null}
+            {intensityExtrema ? (
+              <div className="space-y-1 text-xs leading-relaxed text-white/70">
+                <p>
+                  Cleanest hour: <strong className="text-white">{formatHourLabel(intensityExtrema.clean.time)}</strong>{" "}
+                  ({Math.round(intensityExtrema.clean.value)} kg CO₂/MWh)
+                </p>
+                <p>
+                  Dirtiest hour: <strong className="text-white">{formatHourLabel(intensityExtrema.dirty.time)}</strong>{" "}
+                  ({Math.round(intensityExtrema.dirty.value)} kg CO₂/MWh)
+                </p>
+              </div>
             ) : null}
             {state.error ? (
               <p className="text-sm font-medium text-red-300">{state.error}</p>

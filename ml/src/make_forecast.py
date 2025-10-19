@@ -9,6 +9,9 @@ import pandas as pd
 from pathlib import Path
 from prophet import Prophet
 
+CARBON_INTENSITY_BASELINE = 450.0  # kg CO₂ / MWh when renewables are negligible
+CARBON_INTENSITY_MIN = 80.0        # kg CO₂ / MWh in a fully renewable hour
+
 # Paths
 DATA_DIR = Path(__file__).resolve().parents[2] / "data"
 FORECAST_PATH = DATA_DIR / "forecast.json"
@@ -108,8 +111,27 @@ forecast = prophet.predict(future)
 result = future[['ds', 'solar_mw', 'wind_mw']].copy()
 result['load_pred_mw'] = forecast['yhat']
 
+# Compute renewable share + carbon intensity signal for the worker heuristic
+renewable_total = result['solar_mw'] + result['wind_mw']
+result['renewable_share'] = (
+    renewable_total.div(result['load_pred_mw'].where(result['load_pred_mw'] > 0, pd.NA))
+).fillna(0).clip(0, 1)
+result['carbon_intensity_kg_per_mwh'] = (
+    CARBON_INTENSITY_MIN
+    + (CARBON_INTENSITY_BASELINE - CARBON_INTENSITY_MIN) * (1 - result['renewable_share'])
+).round(2)
+
 # Ensure deterministic column order and ISO timestamps
-result = result[['ds', 'load_pred_mw', 'solar_mw', 'wind_mw']]
+result = result[
+    [
+        'ds',
+        'load_pred_mw',
+        'solar_mw',
+        'wind_mw',
+        'renewable_share',
+        'carbon_intensity_kg_per_mwh',
+    ]
+]
 result['ds'] = pd.to_datetime(result['ds']).dt.strftime('%Y-%m-%d %H:%M:%S+00:00')
 
 # Save the forecast as a JSON file (for the Cloudflare Worker)
