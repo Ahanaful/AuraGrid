@@ -221,13 +221,7 @@ export default function DashboardPage() {
             <p className="leading-relaxed">
               Forecast points loaded: <strong className="font-semibold text-white">{state.series.base.length}</strong>
             </p>
-            {datasetRange ? (
-              <p className="leading-relaxed text-xs text-white/70">
-                Dataset window: <strong className="text-white">{formatDateWithWeekday(datasetRange.start)}</strong>
-                {" "}to{" "}
-                <strong className="text-white">{formatDateWithWeekday(datasetRange.end)}</strong>
-              </p>
-            ) : null}
+            
             {state.series.base.length > 0 ? (
               <p className="leading-relaxed">
                 Peak baseline load: {formatPower(Math.max(...state.series.base))}
