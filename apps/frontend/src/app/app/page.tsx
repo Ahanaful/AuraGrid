@@ -7,13 +7,7 @@ import { LoadChart } from "@/components/charts/LoadChart";
 import { RequireAuth } from "@/components/auth/RequireAuth";
 import { Button } from "@/components/ui/button";
 import { useAuraApi } from "@/hooks/useAuraApi";
-import {
-  formatCo2,
-  formatPercent,
-  formatPower,
-  formatHourLabel,
-  formatDateWithWeekday,
-} from "@/lib/formatting";
+import { formatCo2, formatPower, formatHourLabel, formatDateWithWeekday } from "@/lib/formatting";
 
 export default function DashboardPage() {
   const {
@@ -23,7 +17,6 @@ export default function DashboardPage() {
     fetchInsight,
     loadPlan,
     reoptimizePlan,
-    applyCurrentPlan,
     reset,
   } = useAuraApi();
 
@@ -193,16 +186,8 @@ export default function DashboardPage() {
                   <p className="text-sm text-white/70">
                     Version: <span className="font-semibold text-white">{state.plan.version}</span>
                   </p>
-                  <div className="grid gap-2 text-sm text-white/80 sm:grid-cols-3">
-                    <span>
-                      Peak Reduction: {formatPercent(state.plan.metrics?.peak_reduction_pct ?? 0)}
-                    </span>
-                    <span>
-                      Renewable Gain: {formatPercent(state.plan.metrics?.renewable_gain_pct ?? 0)}
-                    </span>
-                    <span>
-                      CO₂ Avoided: {formatCo2(state.plan.metrics?.co2_avoided_kg ?? 0)}
-                    </span>
+                  <div className="text-sm text-white/80">
+                    CO₂ Avoided: {formatCo2(state.plan.metrics?.co2_avoided_kg ?? 0)}
                   </div>
                 </>
               ) : (
@@ -222,30 +207,12 @@ export default function DashboardPage() {
               >
                 Reoptimize + Persist
               </Button>
-              <Button
-                onClick={() => applyCurrentPlan()}
-                loading={state.loading === "apply"}
-                disabled={!state.plan}
-                variant="ghost"
-              >
-                Apply Plan
-              </Button>
             </div>
             <p className="mt-3 text-xs text-teal-200/70">
-              Apply pushes the current plan into the Durable Object immediately.
+              Plans persist automatically in the Durable Object.
             </p>
           </section>
-          <section className="card-fade-in grid w-full gap-4 sm:grid-cols-3">
-            <ImpactCard
-              title="Peak Reduction"
-              description="Decline in megawatts operating above the 90% threshold."
-              value={metrics ? formatPercent(metrics.peak_reduction_pct) : "—"}
-            />
-            <ImpactCard
-              title="Renewable Share"
-              description="Increase in overlap between compute load and renewable supply."
-              value={metrics ? formatPercent(metrics.renewable_gain_pct) : "—"}
-            />
+          <section className="card-fade-in grid w-full gap-4">
             <ImpactCard
               title="CO₂ Avoided"
               description="Daily savings versus the unshifted baseline."

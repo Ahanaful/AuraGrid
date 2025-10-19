@@ -15,8 +15,8 @@ CARBON_INTENSITY_MIN = 80.0        # kg CO₂ / MWh in a fully renewable hour
 # Paths
 DATA_DIR = Path(__file__).resolve().parents[2] / "data"
 FORECAST_PATH = DATA_DIR / "forecast.json"
-LOAD_FILE = DATA_DIR / "ercot_load_for_hr_2025_october.csv"  # Path to ERCOT load data
-RENEWABLE_FILE = DATA_DIR / "renewable_energy_data_2025_october.csv"  # Path to renewable data
+LOAD_FILE = DATA_DIR / "ercot_load_for_hr_2025.csv"  # Path to ERCOT load data
+RENEWABLE_FILE = DATA_DIR / "renewable_energy_data_2025_hr.csv"  # Path to renewable data
 
 # Load and clean ERCOT load data
 df_load = pd.read_csv(LOAD_FILE)
