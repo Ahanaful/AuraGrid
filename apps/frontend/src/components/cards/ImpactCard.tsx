@@ -6,7 +6,7 @@ interface ImpactCardProps {
 
 export function ImpactCard({ title, description, value }: ImpactCardProps) {
   return (
-    <article className="card-fade-in card-float rounded-3xl border border-white/10 bg-white/5 p-6 text-left text-white backdrop-blur-xl transition-transform duration-500">
+    <article className="card-fade-in card-float rounded-3xl border border-[rgba(120,168,255,0.18)] bg-[rgba(12,32,70,0.55)] p-6 text-left text-white backdrop-blur-xl transition-transform duration-500">
       <h3 className="text-xs font-semibold uppercase tracking-[0.35em] text-white/70">
         {title}
       </h3>

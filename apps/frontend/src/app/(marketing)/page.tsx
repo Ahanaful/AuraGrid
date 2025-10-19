@@ -32,7 +32,7 @@ export default function MarketingPage() {
           </div>
         </section>
 
-        <section className="card-fade-in card-float grid w-full gap-10 rounded-3xl border border-white/10 bg-white/5 p-10 shadow-2xl shadow-teal-900/40 backdrop-blur-xl">
+        <section className="card-fade-in card-float grid w-full gap-10 rounded-3xl border border-[rgba(120,168,255,0.15)] bg-[rgba(10,28,62,0.55)] p-10 shadow-2xl shadow-blue-900/40 backdrop-blur-xl">
           <div className="grid gap-3 text-center">
             <h2 className="text-2xl font-semibold text-white">Why AuraGrid?</h2>
             <p className="mx-auto max-w-2xl text-sm leading-relaxed text-slate-200 sm:text-base">
@@ -43,7 +43,7 @@ export default function MarketingPage() {
             </p>
           </div>
           <dl className="grid grid-cols-1 gap-8 text-left sm:grid-cols-2">
-            <div className="card-fade-in card-float rounded-2xl border border-white/5 bg-white/5 p-6 backdrop-blur">
+            <div className="card-fade-in card-float rounded-2xl border border-[rgba(120,168,255,0.18)] bg-[rgba(12,32,70,0.55)] p-6 backdrop-blur">
               <dt className="text-[0.68rem] font-semibold uppercase tracking-[0.3em] text-slate-200">
                 Environmental Impact
               </dt>
@@ -52,7 +52,7 @@ export default function MarketingPage() {
                 carbon intensity.
               </dd>
             </div>
-            <div className="card-fade-in card-float rounded-2xl border border-white/5 bg-white/5 p-6 backdrop-blur">
+            <div className="card-fade-in card-float rounded-2xl border border-[rgba(120,168,255,0.18)] bg-[rgba(12,32,70,0.55)] p-6 backdrop-blur">
               <dt className="text-[0.68rem] font-semibold uppercase tracking-[0.3em] text-slate-200">
                 Economic Benefit
               </dt>
@@ -61,7 +61,7 @@ export default function MarketingPage() {
                 SLAs.
               </dd>
             </div>
-            <div className="card-fade-in card-float rounded-2xl border border-white/5 bg-white/5 p-6 backdrop-blur">
+            <div className="card-fade-in card-float rounded-2xl border border-[rgba(120,168,255,0.18)] bg-[rgba(12,32,70,0.55)] p-6 backdrop-blur">
               <dt className="text-[0.68rem] font-semibold uppercase tracking-[0.3em] text-slate-200">
                 Operational Confidence
               </dt>
@@ -70,7 +70,7 @@ export default function MarketingPage() {
                 minutes.
               </dd>
             </div>
-            <div className="card-fade-in card-float rounded-2xl border border-white/5 bg-white/5 p-6 backdrop-blur">
+            <div className="card-fade-in card-float rounded-2xl border border-[rgba(120,168,255,0.18)] bg-[rgba(12,32,70,0.55)] p-6 backdrop-blur">
               <dt className="text-[0.68rem] font-semibold uppercase tracking-[0.3em] text-slate-200">
                 AI-ready Insights
               </dt>

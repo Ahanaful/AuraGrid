@@ -85,7 +85,7 @@ export default function DashboardPage() {
             />
           </section>
 
-          <section className="card-fade-in w-full rounded-3xl border border-white/10 bg-white/5 p-8 text-left text-white backdrop-blur-xl shadow-2xl shadow-teal-900/40">
+        <section className="card-fade-in w-full rounded-3xl border border-[rgba(120,168,255,0.15)] bg-[rgba(10,28,62,0.55)] p-8 text-left text-white backdrop-blur-xl shadow-2xl shadow-blue-900/40">
             <h2 className="text-lg font-semibold text-white">AI Insight</h2>
             <p className="mt-2 text-sm leading-relaxed text-white/70">
               Workers AI summarizes why the optimization matters in plain language.
@@ -95,7 +95,7 @@ export default function DashboardPage() {
             </div>
           </section>
 
-          <section className="card-fade-in grid w-full gap-4 rounded-3xl border border-white/10 bg-white/5 p-8 text-left text-sm text-white/80 backdrop-blur-xl shadow-2xl shadow-teal-900/40">
+          <section className="card-fade-in grid w-full gap-4 rounded-3xl border border-[rgba(120,168,255,0.15)] bg-[rgba(10,28,62,0.55)] p-8 text-left text-sm text-white/80 backdrop-blur-xl shadow-2xl shadow-blue-900/40">
             <h2 className="text-lg font-semibold text-white">Active Dataset</h2>
             <p className="leading-relaxed">
               Forecast points loaded: <strong className="font-semibold text-white">{state.series.base.length}</strong>
