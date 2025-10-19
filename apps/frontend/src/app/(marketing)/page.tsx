@@ -9,19 +9,17 @@ export default function MarketingPage() {
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col items-center gap-14 px-6 pb-20 pt-20 text-center">
         <section className="flex flex-col gap-6 glow-entrance">
           <h1 className="headline-glow text-4xl font-semibold leading-tight sm:text-5xl">
-            Carbon-aware scheduling for every AI cluster.
+            Smarter scheduling for greener AI workloads.
           </h1>
           <p className="mx-auto max-w-2xl text-base leading-relaxed text-slate-200 sm:text-lg">
-            AuraGrid forecasts load, renewables, and carbon intensity so data
-            center teams can move flexible workloads into greener windows while
-            respecting grid peaks—no infrastructure rewrites required.
+            AuraGrid forecasts grid load, renewables, and fossil fuel usage so data-center teams can move flexible workloads into cleaner, low-fossil windows, no infrastructure changes required.
           </p>
           <div className="cta-pulse flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
               href="/app"
               className={buttonClassName("primary")}
             >
-              Start Forecast
+              View Dashboard
             </Link>
             <Link
               href="#impact"
