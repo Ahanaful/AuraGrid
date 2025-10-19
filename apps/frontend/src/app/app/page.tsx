@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Header } from "@/components/common/Header";
 import { ImpactCard } from "@/components/cards/ImpactCard";
 import { LoadChart } from "@/components/charts/LoadChart";
@@ -32,6 +32,57 @@ export default function DashboardPage() {
     [state.metrics, state.plan],
   );
   const planMetrics = state.plan?.metrics ?? null;
+  const [activeAction, setActiveAction] = useState(0);
+  const [hasInteracted, setHasInteracted] = useState(false);
+
+  const actions = [
+    {
+      label: "Start Forecast",
+      onPress: loadForecast,
+      disabled: false,
+      loading: state.loading === "forecast",
+    },
+    {
+      label: "Optimize",
+      onPress: optimizeLoad,
+      disabled: !state.series.base.length,
+      loading: state.loading === "optimize",
+    },
+    {
+      label: "Generate Insight",
+      onPress: fetchInsight,
+      disabled: !metrics,
+      loading: state.loading === "insight",
+    },
+    {
+      label: "Reset",
+      onPress: reset,
+      disabled: false,
+      loading: false,
+    },
+  ];
+  const segmentCount = actions.length;
+  const segmentWidth = `calc((100% - 0.5rem) / ${segmentCount})`;
+  const highlightStyle = useMemo(
+    () => ({
+      width: segmentWidth,
+      left: `calc(${activeAction} * ((100% - 0.5rem) / ${segmentCount}) + 0.25rem)`,
+    }),
+    [segmentCount, segmentWidth, activeAction],
+  );
+
+  useEffect(() => {
+    if (state.loading === "forecast") {
+      setActiveAction(0);
+      setHasInteracted(true);
+    } else if (state.loading === "optimize") {
+      setActiveAction(1);
+      setHasInteracted(true);
+    } else if (state.loading === "insight") {
+      setActiveAction(2);
+      setHasInteracted(true);
+    }
+  }, [state.loading]);
   const intensityExtrema = useMemo(() => {
     const { intensity, timestamps } = state.series;
     if (!intensity.length || intensity.length !== timestamps.length) {
@@ -81,29 +132,44 @@ export default function DashboardPage() {
               Load the latest forecast, shift flexible workloads into the cleanest hours, and brief
               your ops team on the avoided emissions in seconds.
             </p>
-            <div className="cta-pulse flex flex-wrap items-center justify-center gap-3 pt-2">
-              <Button onClick={loadForecast} loading={state.loading === "forecast"}>
-                Start Forecast
-              </Button>
-              <Button
-                onClick={optimizeLoad}
-                disabled={!state.series.base.length}
-                loading={state.loading === "optimize"}
-                variant="secondary"
-              >
-                Optimize
-              </Button>
-              <Button
-                onClick={fetchInsight}
-                disabled={!metrics}
-                loading={state.loading === "insight"}
-                variant="ghost"
-              >
-                Generate Insight
-              </Button>
-              <Button onClick={reset} variant="plain">
-                Reset
-              </Button>
+            <div className="cta-pulse flex justify-center pt-2">
+              <div className="relative inline-flex w-full max-w-3xl items-center overflow-hidden rounded-full border-[2.25px] border-[rgba(120,168,255,0.28)] bg-[rgba(10,28,62,0.6)] p-1 text-base font-semibold tracking-tight text-white shadow-[0_10px_30px_rgba(66,182,255,0.16)] transition-transform duration-300 backdrop-blur">
+                <span
+                  aria-hidden="true"
+                  style={highlightStyle}
+                  className={`pointer-events-none absolute inset-y-1 rounded-full transition-[left,width] duration-500 ease-out ${
+                    hasInteracted
+                      ? "bg-[linear-gradient(140deg,rgba(79,205,255,0.95),rgba(156,227,255,0.88))]"
+                      : "bg-[linear-gradient(140deg,rgba(58,128,202,0.9),rgba(120,186,240,0.85))]"
+                  }`}
+                />
+                {actions.map((action, index) => {
+                  const isActive = activeAction === index;
+                  const isDisabled = action.disabled || action.loading;
+                  return (
+                    <button
+                      key={action.label}
+                      type="button"
+                      onClick={() => {
+                        if (isDisabled) return;
+                        setHasInteracted(true);
+                        setActiveAction(index);
+                        action.onPress();
+                      }}
+                      disabled={isDisabled}
+                      aria-pressed={isActive}
+                      className={`relative z-10 flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-2 text-sm transition-colors duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-300 ${
+                        isActive ? "text-slate-950" : "text-white/70 hover:text-white"
+                      } ${isDisabled ? "cursor-not-allowed opacity-50" : ""}`}
+                    >
+                      {action.loading ? (
+                        <span className="mr-2 h-3 w-3 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                      ) : null}
+                      {action.label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </section>
 
@@ -169,40 +235,21 @@ export default function DashboardPage() {
               Apply pushes the current plan into the Durable Object immediately.
             </p>
           </section>
-
           <section className="card-fade-in grid w-full gap-4 sm:grid-cols-3">
             <ImpactCard
               title="Peak Reduction"
               description="Decline in megawatts operating above the 90% threshold."
-              value={
-                planMetrics
-                  ? formatPercent(planMetrics.peak_reduction_pct)
-                  : metrics
-                  ? formatPercent(metrics.peak_reduction_pct)
-                  : "—"
-              }
+              value={metrics ? formatPercent(metrics.peak_reduction_pct) : "—"}
             />
             <ImpactCard
               title="Renewable Share"
               description="Increase in overlap between compute load and renewable supply."
-              value={
-                planMetrics
-                  ? formatPercent(planMetrics.renewable_gain_pct)
-                  : metrics
-                  ? formatPercent(metrics.renewable_gain_pct)
-                  : "—"
-              }
+              value={metrics ? formatPercent(metrics.renewable_gain_pct) : "—"}
             />
             <ImpactCard
               title="CO₂ Avoided"
               description="Daily savings versus the unshifted baseline."
-              value={
-                planMetrics
-                  ? formatCo2(planMetrics.co2_avoided_kg)
-                  : metrics
-                  ? formatCo2(metrics.co2_avoided_kg)
-                  : "—"
-              }
+              value={metrics ? formatCo2(metrics.co2_avoided_kg) : "—"}
             />
           </section>
 

@@ -102,11 +102,11 @@
 @keyframes headline-pulse {
   0%, 100% {
     transform: scale(1);
-    text-shadow: 0 0 16px rgba(120, 190, 255, 0.25);
+    text-shadow: 0 0 12px rgba(120, 190, 255, 0.22);
   }
   50% {
-    transform: scale(1.03);
-    text-shadow: 0 0 28px rgba(120, 190, 255, 0.5);
+    transform: scale(1.012);
+    text-shadow: 0 0 18px rgba(120, 190, 255, 0.38);
   }
 }
 
@@ -211,21 +211,19 @@
 
 @keyframes logo-bolt-on {
   0%,
-  1.8% {
-    fill: #ffffff;
-    filter: drop-shadow(0 0 10px rgba(144, 190, 255, 0.55));
+  18% {
+    fill: #f0fbff;
+    filter: drop-shadow(0 0 10px rgba(144, 190, 255, 0.6));
   }
-  4% {
-    fill: #9ac4ff;
+  20%,
+  97.5% {
+    fill: #4f8bdc;
     filter: drop-shadow(0 0 0 rgba(144, 190, 255, 0));
   }
-  98% {
-    fill: #cfe4ff;
-    filter: drop-shadow(0 0 4px rgba(144, 190, 255, 0.35));
-  }
+  98.2%,
   100% {
-    fill: #ffffff;
-    filter: drop-shadow(0 0 10px rgba(144, 190, 255, 0.55));
+    fill: #f0fbff;
+    filter: drop-shadow(0 0 10px rgba(144, 190, 255, 0.6));
   }
 }
 
