@@ -44,14 +44,13 @@ export async function getPlan(): Promise<PlanResponse> {
 }
 
 export async function applyPlan(
-  token: string,
   payload: PlanPayload,
   tenant = "demo",
 ) {
   const res = await fetch(withWorkerBase("/api/apply"), {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ token, payload, tenant }),
+    body: JSON.stringify({ payload, tenant }),
   });
   return handleResponse<{ ok: boolean; version: number }>(res);
 }

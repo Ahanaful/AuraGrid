@@ -1,5 +1,4 @@
 import { Hono } from 'hono'
-import { verifyTurnstile } from '../adapters/turnstile'
 import { applyPlanToDO, logRun } from '../services/reoptimizer'
 import type { PlanPayload } from '../types/plan'
 
@@ -7,7 +6,6 @@ export const plan = new Hono<{
   Bindings: {
     SCHEDULER_DO: DurableObjectNamespace
     auragrid_db: D1Database
-    TURNSTILE_SECRET: string
   }
 }>()
 
@@ -32,13 +30,10 @@ plan.get('/api/plan', async (c) => {
 
 plan.post('/api/apply', async (c) => {
   const body = (await c.req.json()) as {
-    token: string
     payload: PlanPayload
     tenant?: string
   }
-  const { token, payload, tenant = 'demo' } = body
-  const ok = await verifyTurnstile(c.env.TURNSTILE_SECRET, token, c.req.header('cf-connecting-ip') || undefined)
-  if (!ok) return c.json({ error: 'turnstile_failed' }, 400)
+  const { payload, tenant = 'demo' } = body
 
   try {
     await applyPlanToDO({ SCHEDULER_DO: c.env.SCHEDULER_DO }, tenant, {

@@ -15,7 +15,6 @@ type Env = {
   AI: Ai
   auragrid_db: D1Database
   SCHEDULER_DO: DurableObjectNamespace
-  TURNSTILE_SECRET: string
 }
 
 const app = new Hono<{ Bindings: Env }>()

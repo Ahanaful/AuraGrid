@@ -37,7 +37,6 @@ interface AuraState {
   metrics?: OptimizeMetrics;
   series: SeriesState;
   plan?: PlanPayload | null;
-  turnstileToken?: string;
 }
 
 const initialSeries: SeriesState = {
@@ -71,6 +70,7 @@ export function useAuraApi() {
         (row) => (row.solar_mw ?? 0) + (row.wind_mw ?? 0),
       );
       const timestamps = rows.map((row) => row.ds);
+      const intensity = rows.map((row) => row.carbon_intensity_kg_per_mwh ?? null);
 
       setState((prev) => ({
         ...prev,
@@ -83,7 +83,7 @@ export function useAuraApi() {
           optimized: base,
           renewable,
           timestamps,
-          intensity: [],
+          intensity,
         },
       }));
     } catch (error) {
@@ -203,7 +203,7 @@ export function useAuraApi() {
   }, [loadPlan, pushToast, setLoading]);
 
   const applyCurrentPlan = useCallback(
-    async (token: string) => {
+    async () => {
       if (!state.plan) {
         const message = "No plan loaded to apply.";
         pushToast({ variant: "error", message });
@@ -216,7 +216,7 @@ export function useAuraApi() {
 
       try {
         setLoading("apply");
-        await applyPlan(token, state.plan);
+        await applyPlan(state.plan);
         setState((prev) => ({
           ...prev,
           loading: "idle",
@@ -258,8 +258,6 @@ export function useAuraApi() {
     loadPlan,
     reoptimizePlan,
     applyCurrentPlan,
-    setTurnstileToken: (token: string) =>
-      setState((prev) => ({ ...prev, turnstileToken: token })),
     reset,
   };
 }

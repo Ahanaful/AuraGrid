@@ -10,7 +10,7 @@ export const ForecastRowSchema = z.object({
     .min(0)
     .max(1)
     .optional(),
-  carbon_intensity_kg_per_mwh: z.number().nonnegative().optional(),
+  carbon_intensity_kg_per_mwh: z.number().nonnegative(),
 })
 
 export const ForecastArraySchema = z.array(ForecastRowSchema)

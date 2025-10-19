@@ -135,7 +135,7 @@ export default function DashboardPage() {
                 Reoptimize + Persist
               </Button>
               <Button
-                onClick={() => applyCurrentPlan("dev-placeholder")}
+                onClick={() => applyCurrentPlan()}
                 loading={state.loading === "apply"}
                 disabled={!state.plan}
                 variant="ghost"
@@ -144,7 +144,7 @@ export default function DashboardPage() {
               </Button>
             </div>
             <p className="mt-3 text-xs text-teal-200/70">
-              Turnstile is mocked for the hackathon demo by sending a placeholder token.
+              Apply pushes the current plan into the Durable Object immediately.
             </p>
           </section>
 

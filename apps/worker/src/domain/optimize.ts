@@ -1,7 +1,7 @@
-const DEFAULT_PEAK_THRESHOLD_RATIO = 0.9
+const DEFAULT_PEAK_THRESHOLD_RATIO = 0.97
 const DEFAULT_MAX_SHIFT_RATIO = 0.05
 const DEFAULT_BUDGET_RATIO = 0.4
-const DEFAULT_MIN_INTENSITY_DELTA = 15 // kg CO₂/MWh
+const DEFAULT_MIN_INTENSITY_DELTA = 2 // kg CO₂/MWh
 
 export interface CarbonAwareOptions {
   peakThresholdRatio?: number

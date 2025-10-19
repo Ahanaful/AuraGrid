@@ -42,8 +42,13 @@ export async function computePlanFromForecast(
     return minimum + (baseline - minimum) * (1 - share)
   })
 
-  const { optimized } = carbonAwareOptimize(base, intensity)
-  const metrics = computeMetrics(base, optimized, renewable, intensity)
+  const peakThresholdRatio = 0.97
+  const { optimized } = carbonAwareOptimize(base, intensity, {
+    peakThresholdRatio,
+  })
+  const metrics = computeMetrics(base, optimized, renewable, intensity, {
+    peakThresholdRatio,
+  })
 
   const payload: PlanPayload = {
     version,
