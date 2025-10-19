@@ -13,17 +13,11 @@ workers_dev = true
   kv_namespaces = [
     { binding = "auragrid_forecast", id = "06d2375ff45c4a6e966072f5938019f9", preview_id = "941a8d46d55a49ffb359178267176ec4" }
   ]
+durable_objects = { bindings = [{ name = "SCHEDULER_DO", class_name = "SchedulerDO" }] }
+     d1_databases = [{ binding = "auragrid_db", database_id = "db9fe875-d8f0-479c-bf5c-b3c2a98d554d" }]
+     ai = { binding = "AI" }
 
 
-
-[ai]
-binding = "AI"
-
-# Durable Object binding
-[durable_objects]
-bindings = [
-  { name = "SCHEDULER_DO", class_name = "SchedulerDO" }
-]
 
 
 [[migrations]]
@@ -37,12 +31,6 @@ enabled = true
 #invocation_logs = true
 #persist = true
 
-# D1 binding
-[[d1_databases]]
-binding = "auragrid_db"
-database_name = "auragrid-db"
-database_id = "db9fe875-d8f0-479c-bf5c-b3c2a98d554d"
-
 # Cron: every 15 minutes
-[[triggers]]
+[triggers]
 crons = ["*/15 * * * *"]
