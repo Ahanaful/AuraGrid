@@ -30,14 +30,23 @@ export function LoadChart({
 }: LoadChartProps) {
   const hasData = base.length > 0 && timestamps.length === base.length;
 
+  let lastValidIntensity: number | null = null;
   const dataset = hasData
-    ? timestamps.map((time, idx) => ({
-        time,
-        base: base[idx] ?? 0,
-        optimized: optimized[idx] ?? base[idx] ?? 0,
-        renewable: renewable[idx] ?? 0,
-        intensity: intensity[idx] ?? null,
-      }))
+    ? timestamps.map((time, idx) => {
+        const rawIntensity = intensity[idx];
+        const isValid = Number.isFinite(rawIntensity);
+        if (isValid) {
+          lastValidIntensity = rawIntensity as number;
+        }
+
+        return {
+          time,
+          base: base[idx] ?? 0,
+          optimized: optimized[idx] ?? base[idx] ?? 0,
+          renewable: renewable[idx] ?? 0,
+          intensity: isValid ? (rawIntensity as number) : lastValidIntensity,
+        };
+      })
     : [];
 
   return (
@@ -99,6 +108,7 @@ export function LoadChart({
                 strokeWidth={2}
                 dot={false}
                 name="Carbon Intensity"
+                connectNulls
               />
             </LineChart>
           </ResponsiveContainer>

@@ -46,7 +46,3 @@ database_id = "db9fe875-d8f0-479c-bf5c-b3c2a98d554d"
 # Cron: every 15 minutes
 [[triggers]]
 crons = ["*/15 * * * *"]
-
-# Turnstile (set the secret as a Wrangler secret; site key is public if you need it)
-[vars]
-TURNSTILE_SITE_KEY = "REPLACE_IN_FRONTEND"

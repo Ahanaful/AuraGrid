@@ -40,7 +40,6 @@ export type PlanPayload = {
 export type PlanResponse = PlanPayload | null;
 
 export type ApplyPlanRequest = {
-  token: string;
   payload: PlanPayload;
   tenant?: string;
 };

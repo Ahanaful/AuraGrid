@@ -3,13 +3,17 @@ export function computeMetrics(
   optimized: number[],
   renewable: number[],
   intensity?: number[],
+  options?: {
+    peakThresholdRatio?: number
+  },
 ) {
   if (base.length === 0) {
     return { peak_reduction_pct: 0, renewable_gain_pct: 0, co2_avoided_kg: 0 }
   }
 
   const maxBase = Math.max(...base)
-  const peakThreshold = 0.9 * maxBase
+  const peakThresholdRatio = options?.peakThresholdRatio ?? 0.9
+  const peakThreshold = peakThresholdRatio * maxBase
 
   const peakSum = base.reduce((sum, value) => sum + Math.max(value - peakThreshold, 0), 0)
   const peakSumOpt = optimized.reduce((sum, value) => sum + Math.max(value - peakThreshold, 0), 0)

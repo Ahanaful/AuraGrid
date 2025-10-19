@@ -32,8 +32,13 @@ optimize.get('/api/optimize', async (c) => {
     return minimum + (baseline - minimum) * (1 - share)
   })
 
-  const { optimized, shifts } = carbonAwareOptimize(base, intensity)
-  const metrics = computeMetrics(base, optimized, renewable, intensity)
+  const peakThresholdRatio = 0.97
+  const { optimized, shifts } = carbonAwareOptimize(base, intensity, {
+    peakThresholdRatio,
+  })
+  const metrics = computeMetrics(base, optimized, renewable, intensity, {
+    peakThresholdRatio,
+  })
 
   return c.json({ base, optimized, renewable, intensity, metrics, shifts })
 })
