@@ -14,18 +14,12 @@ export default function MarketingPage() {
           <p className="mx-auto max-w-2xl text-base leading-relaxed text-slate-200 sm:text-lg">
             AuraGrid forecasts grid load, renewables, and fossil fuel usage so data-center teams can move flexible workloads into cleaner, low-fossil windows, no infrastructure changes required.
           </p>
-          <div className="cta-pulse flex flex-col items-center justify-center gap-4 sm:flex-row">
+          <div className="cta-pulse flex flex-col items-center justify-center">
             <Link
               href="/app"
               className={buttonClassName("primary")}
             >
               View Dashboard
-            </Link>
-            <Link
-              href="#impact"
-              className={buttonClassName("secondary")}
-            >
-              See impact metrics
             </Link>
           </div>
         </section>
