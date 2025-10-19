@@ -32,7 +32,7 @@ html, body {
 
 
 body {
-  background: linear-gradient(135deg, var(--auragrid-gradient-start), var(--auragrid-gradient-end));
+  background: var(--auragrid-base);
   color: var(--foreground);
   font-family: var(--font-geist-sans), "Geist Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 16px;
