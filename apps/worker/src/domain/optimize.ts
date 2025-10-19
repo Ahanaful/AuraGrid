@@ -32,7 +32,11 @@ export function greedyOptimize(base: number[], renewable: number[]) {
     if (shiftAmount <= 0) continue
 
     optimized[peakIndex] -= shiftAmount
-    const targetIndex = nextGreenSlot(greenSlots, optimized, renewable, peakIndex)
+    const targetIndex = nextGreenSlot(greenSlots, peakIndex)
+    if (targetIndex === peakIndex) {
+      optimized[peakIndex] += shiftAmount
+      continue
+    }
     optimized[targetIndex] += shiftAmount
 
     remainingBudget -= shiftAmount
@@ -41,16 +45,11 @@ export function greedyOptimize(base: number[], renewable: number[]) {
   return optimized
 }
 
-function nextGreenSlot(
-  candidates: number[],
-  optimized: number[],
-  renewable: number[],
-  fallback: number,
-) {
+function nextGreenSlot(candidates: number[], fallback: number) {
   while (candidates.length) {
     const index = candidates.shift()
     if (index === undefined) break
-    if ((renewable[index] ?? 0) >= (optimized[index] ?? 0)) {
+    if (index !== fallback) {
       return index
     }
   }

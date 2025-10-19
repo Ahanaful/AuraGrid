@@ -1,8 +1,5 @@
 import { Hono } from 'hono'
-import { readForecast } from '../adapters/kvStore'
-import { greedyOptimize } from '../domain/optimize'
-import { computeMetrics } from '../domain/metrics'
-import type { PlanPayload } from '../do/SchedulerDO'
+import { runReoptimization } from '../services/reoptimizer'
 
 export const reopt = new Hono<{
   Bindings: {
@@ -12,46 +9,24 @@ export const reopt = new Hono<{
   }
 }>()
 
-function getStub(c: any, tenant = 'demo') {
-  const id = c.env.SCHEDULER_DO.idFromName(tenant)
-  return c.env.SCHEDULER_DO.get(id)
-}
-
 reopt.post('/api/reoptimize', async (c) => {
-  const rows = await readForecast(c.env.auragrid_forecast)
-  if (!rows || !rows.length) return c.json({ error: 'no_forecast' }, 400)
+  try {
+    const payload = await runReoptimization(
+      {
+        auragrid_forecast: c.env.auragrid_forecast,
+        SCHEDULER_DO: c.env.SCHEDULER_DO,
+        auragrid_db: c.env.auragrid_db,
+      },
+      { tenant: 'demo', trigger: 'reoptimize' },
+    )
 
-  const base = rows.map(r => r.load_pred_mw)
-  const renewable = rows.map(r => (r.solar_mw ?? 0) + (r.wind_mw ?? 0))
-  const optimized = greedyOptimize(base, renewable)
-  const metrics = computeMetrics(base, optimized, renewable)
+    if (!payload) return c.json({ error: 'no_forecast' }, 400)
 
-  // version strategy: use current time ticks
-  const payload: PlanPayload = {
-    version: Date.now(),
-    plan: { base, renewable, optimized },
-    metrics
+    return c.json({ ok: true, metrics: payload.metrics, version: payload.version })
+  } catch (error) {
+    console.error('[reoptimize:post]', error)
+    return c.json({ error: 'internal_error' }, 500)
   }
-
-  const stub = getStub(c, 'demo')
-  const resp = await stub.fetch(new URL('/apply', 'http://do').toString(), {
-    method: 'POST',
-    body: JSON.stringify(payload),
-    headers: { 'content-type': 'application/json' }
-  })
-  if (!resp.ok) return c.json({ error: await resp.text() }, resp.status)
-
-  await c.env.auragrid_db
-    .prepare('INSERT INTO audit_logs (action, tenant, version, metrics_json) VALUES (?1, ?2, ?3, ?4)')
-    .bind('cron-reoptimize', 'demo', payload.version, JSON.stringify(metrics))
-    .run()
-
-  await c.env.auragrid_db
-    .prepare('INSERT INTO impacts (tenant, peak_reduction_pct, renewable_gain_pct, co2_avoided_kg) VALUES (?1, ?2, ?3, ?4)')
-    .bind('demo', metrics.peak_reduction_pct, metrics.renewable_gain_pct, metrics.co2_avoided_kg)
-    .run()
-
-  return c.json({ ok: true, metrics, version: payload.version })
 })
 
 export default reopt

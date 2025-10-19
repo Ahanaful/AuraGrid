@@ -8,7 +8,21 @@
 	"main": "src/index.ts",
 	"compatibility_date": "2024-04-03",
 	"observability": {
-		"enabled": true
+		"logs": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "invocation_logs": true,
+      "persist": true
+    }
+
+	},
+	"durable_objects": {
+		"bindings": [
+			{
+				"name": "SCHEDULER_DO",
+				"class_name": "SchedulerDO"
+			}
+		]
 	},
 	"kv_namespaces": [
 		{
@@ -27,7 +41,21 @@
 			"database_name": "auragrid-db",
 			"database_id": "db9fe875-d8f0-479c-bf5c-b3c2a98d554d"
 		}
-	]
+		
+	],
+	"migrations": [
+		{
+			"tag": "001_scheduler_do",
+			"new_classes": ["SchedulerDO"]
+		}
+	],
+	"triggers": {
+		"crons": ["*/15 * * * *"]
+	},
+	"vars": {
+		"TURNSTILE_SITE_KEY": "REPLACE_IN_FRONTEND"
+	}
+
 	/**
 	 * Smart Placement
 	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement

@@ -24,6 +24,13 @@ bindings = [
 tag = "001_scheduler_do"
 new_classes = ["SchedulerDO"]
 
+[observability]
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+invocation_logs = true
+persist = true
+
 # D1 binding
 [d1_databases]
 [[d1_databases]]
