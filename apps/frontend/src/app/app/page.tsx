@@ -146,7 +146,7 @@ export default function DashboardPage() {
               )}
             </div>
             <div className="mt-4 flex flex-wrap gap-3">
-              <Button onClick={loadPlan} loading={state.loading === "plan"}>
+              <Button onClick={() => loadPlan()} loading={state.loading === "plan"}>
                 Refresh Plan
               </Button>
               <Button

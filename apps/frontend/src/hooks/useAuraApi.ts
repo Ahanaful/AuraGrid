@@ -27,7 +27,7 @@ export type SeriesState = {
   optimized: number[];
   renewable: number[];
   timestamps: string[];
-  intensity: number[];
+  intensity: Array<number | null>;
 };
 
 interface AuraState {
@@ -158,7 +158,7 @@ export function useAuraApi() {
     }
   }, [pushToast, setLoading]);
 
-  const loadPlan = useCallback(async () => {
+  const loadPlan = useCallback(async (options?: { silent?: boolean }) => {
     try {
       setLoading("plan");
       const plan = await getPlan();
@@ -168,7 +168,9 @@ export function useAuraApi() {
         plan,
         metrics: plan?.metrics ?? prev.metrics,
       }));
-      pushToast({ variant: "success", message: "Plan refreshed." });
+      if (!options?.silent) {
+        pushToast({ variant: "success", message: "Plan refreshed." });
+      }
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to load plan";
       pushToast({ variant: "error", message });
@@ -184,14 +186,17 @@ export function useAuraApi() {
     try {
       setLoading("reopt");
       const result = await reoptimize();
-      await loadPlan();
+      await loadPlan({ silent: true });
       setState((prev) => ({
         ...prev,
         loading: "idle",
         metrics: result.metrics,
         insight: PLACEHOLDER_INSIGHT,
       }));
-      pushToast({ variant: "success", message: "Plan reoptimized." });
+      pushToast({
+        variant: "success",
+        message: `Plan reoptimized; version ${result.version} saved.`,
+      });
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Reoptimization failed";
