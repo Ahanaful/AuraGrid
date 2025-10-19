@@ -7,9 +7,11 @@
   "scripts": {
     "dev:fe": "npm --workspace apps/frontend run dev",
     "dev:worker": "npm --workspace apps/worker run dev",
-    "dev": "concurrently -n FE,WK -c green,cyan \"npm run dev:fe\" \"npm run dev:worker\""
+    "dev": "concurrently -n FE,WK -c green,cyan \"npm run dev:fe\" \"npm run dev:worker\"",
+    "pages:build": "npx @cloudflare/next-on-pages"
   },
   "devDependencies": {
+    "@cloudflare/next-on-pages": "^1.13.16",
     "concurrently": "^9.0.0"
   },
   "dependencies": {
