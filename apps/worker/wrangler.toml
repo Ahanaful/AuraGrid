@@ -2,6 +2,9 @@ name = "auragrid-worker"
 main = "src/index.ts"
 compatibility_date = "2024-04-03"
 
+[build]
+command = "npx @cloudflare/next build"
+
 kv_namespaces = [
   { binding = "auragrid_forecast", id = "06d2375ff45c4a6e966072f5938019f9", preview_id = "941a8d46d55a49ffb359178267176ec4"}
 ]
