@@ -217,6 +217,8 @@ export default function DashboardPage() {
               title="CO₂ Avoided"
               description="Daily savings versus the unshifted baseline."
               value={metrics ? formatCo2(metrics.co2_avoided_kg) : "—"}
+              showWave
+              fillPercent={60}
             />
           </section>
 
