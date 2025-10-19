@@ -17,14 +17,6 @@ npm run dev:fe     # runs only the Next.js app
 npm run dev:worker # runs only the Cloudflare Worker
 ```
 
-### Durable Object plan workflow
-
-- `GET /api/plan` – Fetch the latest persisted plan payload (or `null` if nothing is stored).
-- `POST /api/reoptimize` – Run the carbon-intensity heuristic, store the plan in the DO, and log metrics to D1.
-- `POST /api/apply` – Apply a supplied plan after Turnstile verification.
-
-For the hackathon demo, the dashboard sends the literal token `dev-placeholder` instead of a real Turnstile challenge. Swap in a production widget + secret when you are ready to go live.
-
 ### Optimization Strategy
 
 - **Primary objective:** cut daily CO₂ intensity by moving discretionary work into the hours with the cleanest generation mix (typically solar-heavy mid-days in ERCOT).
