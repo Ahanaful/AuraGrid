@@ -1,0 +1,13 @@
+[project]
+name = "auragrid-ml"
+version = "0.1.0"
+description = "Offline Prophet forecast generator for AuraGrid"
+requires-python = ">=3.10"
+dependencies = [
+  "pandas",
+  "numpy",
+  "prophet",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]

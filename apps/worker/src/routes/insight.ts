@@ -1,14 +1,22 @@
-import { Hono } from "hono";
-import { summarize } from "../adapters/ai";
+import { Hono } from 'hono'
+import { summarize } from '../adapters/ai'
 
-export const insight = new Hono<{ Bindings: { AI: any } }>();
+export const insight = new Hono<{ Bindings: { AI: any } }>()
 
-insight.get("/api/insight", async (c) => {
-  const here = new URL(c.req.url);
-  const optRes = await fetch(new URL("/api/optimize", here).toString());
-  if (!optRes.ok) return c.json({ summary: "", metrics: {} }, 200);
-  const opt = await optRes.json() as any;
+insight.get('/api/insight', async (c) => {
+  const requestUrl = new URL(c.req.url)
+  const optimizeUrl = new URL('/api/optimize', requestUrl).toString()
+  const response = await fetch(optimizeUrl)
 
-  const { summary, metrics } = await summarize(c.env.AI, opt.metrics);
-  return c.json({ summary, metrics });
-});
+  if (!response.ok) {
+    return c.json({ summary: '', metrics: {} })
+  }
+
+  const optimization = (await response.json()) as { metrics?: any }
+  if (!optimization.metrics) {
+    return c.json({ summary: '', metrics: {} })
+  }
+
+  const result = await summarize(c.env.AI, optimization.metrics)
+  return c.json(result)
+})

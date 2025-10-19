@@ -1,17 +1,21 @@
 export function computeMetrics(base: number[], optimized: number[], renewable: number[]) {
-  const maxBase = Math.max(...base);
-  const peakThreshold = 0.9 * maxBase;
+  if (base.length === 0) {
+    return { peak_reduction_pct: 0, renewable_gain_pct: 0, co2_avoided_kg: 0 }
+  }
 
-  const peakSum = base.reduce((s,v)=> s + Math.max(v - peakThreshold, 0), 0);
-  const peakSumOpt = optimized.reduce((s,v)=> s + Math.max(v - peakThreshold, 0), 0);
-  const peak_reduction_pct = peakSum ? ((peakSum - peakSumOpt)/peakSum)*100 : 0;
+  const maxBase = Math.max(...base)
+  const peakThreshold = 0.9 * maxBase
 
-  const align = base.reduce((s, v, i)=> s + Math.min(v, renewable[i] ?? 0), 0);
-  const alignOpt = optimized.reduce((s, v, i)=> s + Math.min(v, renewable[i] ?? 0), 0);
-  const renewable_gain_pct = align ? ((alignOpt - align)/align)*100 : 0;
+  const peakSum = base.reduce((sum, value) => sum + Math.max(value - peakThreshold, 0), 0)
+  const peakSumOpt = optimized.reduce((sum, value) => sum + Math.max(value - peakThreshold, 0), 0)
+  const peak_reduction_pct = peakSum ? ((peakSum - peakSumOpt) / peakSum) * 100 : 0
 
-  const carbonIntensityKgPerKWh = 0.4;
-  const co2_avoided_kg = Math.max(0, (alignOpt - align)) * carbonIntensityKgPerKWh;
+  const align = base.reduce((sum, value, index) => sum + Math.min(value, renewable[index] ?? 0), 0)
+  const alignOpt = optimized.reduce((sum, value, index) => sum + Math.min(value, renewable[index] ?? 0), 0)
+  const renewable_gain_pct = align ? ((alignOpt - align) / align) * 100 : 0
 
-  return { peak_reduction_pct, renewable_gain_pct, co2_avoided_kg };
+  const carbonIntensityKgPerKWh = 0.4
+  const co2_avoided_kg = Math.max(0, alignOpt - align) * carbonIntensityKgPerKWh
+
+  return { peak_reduction_pct, renewable_gain_pct, co2_avoided_kg }
 }
